@@ -21,6 +21,11 @@ public class ReceiverThread extends Thread {
     private Socket socket;
     private Node targetedNode;
 
+    public ReceiverThread(Socket socket, Node targetedNode) {
+        this.socket = socket;
+        this.targetedNode = targetedNode;
+    }
+
     /**
      * Tries to read some data from the socket. Assumes that the data size, in
      * bytes, was published first, followed by the actual data.
@@ -39,7 +44,7 @@ public class ReceiverThread extends Thread {
 
         return data;
     }
-    
+
     /**
      * @return the IPAddress of the sender to which this receiver is connected
      */
@@ -49,8 +54,8 @@ public class ReceiverThread extends Thread {
 
     @Override
     public void run() {
+        // TODO: change to while(socket.isConnected())?
         while (true) {
-            // accept and send off messages
             try {
                 byte[] data = receiveBytes();
                 targetedNode.handleMessage(data);

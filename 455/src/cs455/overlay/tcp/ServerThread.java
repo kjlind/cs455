@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import cs455.overlay.nodes.Node;
+
 /**
  * The Server listens for incoming connections over a ServerSocket. It accepts
  * any incoming connections and sends them off to a Receiver/Sender pair to
@@ -15,6 +17,7 @@ import java.net.Socket;
 public class ServerThread extends Thread {
 
     private ServerSocket serverSocket;
+    private Node targetedNode;
 
     /**
      * Creates a new server which will listen for connections on the specified
@@ -35,6 +38,7 @@ public class ServerThread extends Thread {
             try {
                 Socket socket = serverSocket.accept();
                 // TODO: handle connections
+                new ReceiverThread(socket, targetedNode).run();
             } catch (IOException e) {
                 System.err.println("I/O error while waiting for/trying to"
                         + " accept an incoming connection:");
