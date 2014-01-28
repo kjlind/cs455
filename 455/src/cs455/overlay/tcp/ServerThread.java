@@ -37,8 +37,8 @@ public class ServerThread extends Thread {
         while (true) {
             try {
                 Socket socket = serverSocket.accept();
-                // TODO: handle connections
                 new ReceiverThread(socket, targetedNode).run();
+                targetedNode.addSender(new Sender(socket));
             } catch (IOException e) {
                 System.err.println("I/O error while waiting for/trying to"
                         + " accept an incoming connection:");
