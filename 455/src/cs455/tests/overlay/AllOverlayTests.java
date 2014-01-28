@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ RegisterRequestTest.class })
+@SuiteClasses({ RegisterRequestTest.class, MessageFactoryTest.class })
 public class AllOverlayTests {
 
 }
