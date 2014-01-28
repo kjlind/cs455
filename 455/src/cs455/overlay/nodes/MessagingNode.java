@@ -2,8 +2,6 @@ package cs455.overlay.nodes;
 
 import java.io.IOException;
 
-import com.sun.xml.internal.messaging.saaj.soap.ver1_1.Message1_1Impl;
-
 
 /**
  * When started, a MessagingNode attempts to register with the Registry using
