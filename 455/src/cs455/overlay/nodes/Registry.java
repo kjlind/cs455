@@ -37,6 +37,10 @@ public class Registry extends Node {
             e.printStackTrace();
         }
     }
+    
+    public Registry(){
+        super();
+    }
 
     @Override
     public void handleMessage(byte[] messageBytes) throws IOException {
@@ -44,6 +48,7 @@ public class Registry extends Node {
         switch (message.getType()) {
             case Protocol.REGISTER_REQUEST:
                 System.out.println("It's a register request!!1!!");
+                break;
             default:
                 // TODO: better error handling here
                 throw new IOException("Bad message type!");

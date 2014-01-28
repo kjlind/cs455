@@ -16,6 +16,8 @@ import cs455.overlay.nodes.Node;
  * @date Jan 28, 2014
  */
 public class Client {
+    private static final boolean DEBUG = true;
+
     private Node targetedNode;
 
     /**
@@ -38,8 +40,17 @@ public class Client {
      */
     public void connectTo(String IPAddress, int port)
             throws UnknownHostException, IOException {
+        if (DEBUG) {
+            System.out.println("Client: Attempting to connect to " + IPAddress
+                    + " on port " + port);
+        }
+
         Socket socket = new Socket(IPAddress, port);
-        new ReceiverThread(socket, targetedNode).run();
+        new ReceiverThread(socket, targetedNode).start();
         targetedNode.addSender(new Sender(socket));
+
+        if (DEBUG) {
+            System.out.println("Client: Successfully connected");
+        }
     }
 }

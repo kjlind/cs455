@@ -18,6 +18,8 @@ import cs455.overlay.tcp.ServerThread;
  * @date Jan 24, 2014
  */
 public abstract class Node {
+    public static final boolean DEBUG = true;
+
     private List<Sender> senders;
 
     public Node() {
@@ -57,6 +59,12 @@ public abstract class Node {
      * server
      */
     public void startServer(int port) throws IOException {
-        new ServerThread(port, this).run();
+        if(DEBUG){
+            System.out.println("Node: just before starting server");
+        }
+        new ServerThread(port, this).start();
+        if(DEBUG){
+            System.out.println("Node: just after starting server");
+        }
     }
 }

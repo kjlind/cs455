@@ -1,7 +1,13 @@
 package cs455.overlay.nodes;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
+import cs455.overlay.tcp.Client;
+import cs455.overlay.tcp.Sender;
+import cs455.overlay.wireformats.RegisterRequest;
 
 /**
  * When started, a MessagingNode attempts to register with the Registry using
@@ -28,9 +34,17 @@ import java.io.IOException;
  * @date Jan 22, 2014
  */
 public class MessagingNode extends Node {
+    private static final boolean DEBUG = true;
+
     public static void main(String args[]) {
-        // TODO: everything!
+        // TODO: better error handling
         MessagingNode node = new MessagingNode();
+
+        // set up server
+        if (DEBUG) {
+            System.out.println("Main MN: setting up server");
+        }
+
         int port = Integer.parseInt(args[0]);
         try {
             node.startServer(port);
@@ -38,6 +52,47 @@ public class MessagingNode extends Node {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
+        // connect to registry
+        if (DEBUG) {
+            System.out.println("Main MN: connecting to registry");
+        }
+
+        String assignedID = args[1];
+        String registryHost = args[2];
+        int registryPort = Integer.parseInt(args[3]);
+        try {
+            new Client(node).connectTo(registryHost, registryPort);
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        // token message sending to test; this will need to change a lot
+        List<Sender> senders = new ArrayList<Sender>();
+        senders.addAll(node.getSenders());
+
+        if (DEBUG) {
+            System.out.println("Main MN: sending message to registry");
+            System.out.println("Main MN: #senders = " + senders.size());
+        }
+
+        Sender registrySender = senders.get(0);
+        RegisterRequest request = new RegisterRequest("shrantiquid", port,
+                assignedID);
+        try {
+            registrySender.sendBytes(request.getBytes());
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public MessagingNode() {
+        super();
     }
 
     @Override

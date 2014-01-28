@@ -16,6 +16,7 @@ import cs455.overlay.nodes.Node;
  * @date Jan 24, 2014
  */
 public class ServerThread extends Thread {
+    private static final boolean DEBUG = true;
 
     private ServerSocket serverSocket;
     private Node targetedNode;
@@ -32,6 +33,10 @@ public class ServerThread extends Thread {
     public ServerThread(int port, Node targetedNode) throws IOException {
         serverSocket = new ServerSocket(port);
         this.targetedNode = targetedNode;
+
+        if (DEBUG) {
+            System.out.println("Server: Setting up a server");
+        }
     }
 
     /**
@@ -46,9 +51,18 @@ public class ServerThread extends Thread {
     public void run() {
         while (true) {
             try {
+                if (DEBUG) {
+                    System.out.println("Server: waiting for connections");
+                }
+
                 Socket socket = serverSocket.accept();
-                new ReceiverThread(socket, targetedNode).run();
+                new ReceiverThread(socket, targetedNode).start();
                 targetedNode.addSender(new Sender(socket));
+
+                if (DEBUG) {
+                    System.out.println("Server: Successfully accepted incoming"
+                            + " connection");
+                }
             } catch (IOException e) {
                 System.err.println("I/O error while waiting for/trying to"
                         + " accept an incoming connection:");
@@ -56,5 +70,4 @@ public class ServerThread extends Thread {
             }
         }
     }
-
 }
