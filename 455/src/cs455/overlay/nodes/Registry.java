@@ -1,5 +1,10 @@
 package cs455.overlay.nodes;
 
+import java.io.IOException;
+
+import cs455.overlay.wireformats.Message;
+import cs455.overlay.wireformats.MessageFactory;
+import cs455.overlay.wireformats.Protocol;
 
 /**
  * The Registry coordinates a network of MessagingNodes. It maintains a record
@@ -22,12 +27,26 @@ package cs455.overlay.nodes;
  */
 public class Registry extends Node {
     public static void main(String args[]) {
-        // TODO: everything!
+        Registry registry = new Registry();
+        // TODO: more stringent error checking/ handling
+        int port = Integer.parseInt(args[0]);
+        try {
+            registry.startServer(port);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     @Override
-    public void handleMessage(byte[] message) {
-        // TODO Auto-generated method stub
-        
+    public void handleMessage(byte[] messageBytes) throws IOException {
+        Message message = MessageFactory.createMessage(messageBytes);
+        switch (message.getType()) {
+            case Protocol.REGISTER_REQUEST:
+                System.out.println("It's a register request!!1!!");
+            default:
+                // TODO: better error handling here
+                throw new IOException("Bad message type!");
+        }
     }
 }

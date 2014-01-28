@@ -9,7 +9,8 @@ import cs455.overlay.nodes.Node;
 /**
  * The Server listens for incoming connections over a ServerSocket. It accepts
  * any incoming connections and sends them off to a Receiver/Sender pair to
- * handle.
+ * handle. It has an associated 'owner' node; all senders it creates will be
+ * given this node.
  * 
  * @author Kira Lindburg
  * @date Jan 24, 2014
@@ -20,16 +21,25 @@ public class ServerThread extends Thread {
     private Node targetedNode;
 
     /**
-     * Creates a new server which will listen for connections on the specified
-     * port.
+     * Creates a new server associated with the specified node which will listen
+     * for connections on the specified port.
      * 
      * @throws IOException if an I/O error occurs while setting up the server
      * socket
      * @throws IllegalArgumentException if the port supplied is not in the valid
-     * range (0 -65535)
+     * range (0 - 65535)
      */
-    public ServerThread(int port) throws IOException {
+    public ServerThread(int port, Node targetedNode) throws IOException {
         serverSocket = new ServerSocket(port);
+        this.targetedNode = targetedNode;
+    }
+
+    /**
+     * @return the port on which this server thread is currently listening for
+     * connections
+     */
+    public int getPort() {
+        return serverSocket.getLocalPort();
     }
 
     @Override

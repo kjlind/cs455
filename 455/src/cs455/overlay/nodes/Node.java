@@ -1,9 +1,11 @@
 package cs455.overlay.nodes;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 import cs455.overlay.tcp.Sender;
+import cs455.overlay.tcp.ServerThread;
 
 /**
  * Node is an abstraction of a single node in a network. It has a particular
@@ -25,8 +27,11 @@ public abstract class Node {
     // TODO: change byte[] to Message, have receiver thread use factory?
     /**
      * Interprets and responds to the provided byte message in some way.
+     * 
+     * @throws IOException if any I/O error occurs while attempting to interpret
+     * or handle the message
      */
-    public abstract void handleMessage(byte[] message);
+    public abstract void handleMessage(byte[] messageBytes) throws IOException;
 
     /**
      * @return this node's list of senders; it will contain one Sender for each
@@ -42,5 +47,16 @@ public abstract class Node {
      */
     public void addSender(Sender senderToAdd) {
         senders.add(senderToAdd);
+    }
+
+    /**
+     * Creates and starts a new ServerThread associated with this node.
+     * 
+     * @param port the port on which the server should run
+     * @throws IOException if an I/O error occurs when trying to set up the
+     * server
+     */
+    public void startServer(int port) throws IOException {
+        new ServerThread(port, this).run();
     }
 }

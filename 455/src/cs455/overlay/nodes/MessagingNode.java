@@ -1,5 +1,9 @@
 package cs455.overlay.nodes;
 
+import java.io.IOException;
+
+import com.sun.xml.internal.messaging.saaj.soap.ver1_1.Message1_1Impl;
+
 
 /**
  * When started, a MessagingNode attempts to register with the Registry using
@@ -28,6 +32,14 @@ package cs455.overlay.nodes;
 public class MessagingNode extends Node {
     public static void main(String args[]) {
         // TODO: everything!
+        MessagingNode node = new MessagingNode();
+        int port = Integer.parseInt(args[0]);
+        try {
+            node.startServer(port);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     @Override
