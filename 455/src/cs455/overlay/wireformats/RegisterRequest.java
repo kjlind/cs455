@@ -104,7 +104,7 @@ public class RegisterRequest implements Message {
         byte[] marshalledBytes;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(
-                baos));
+            baos));
 
         // type field
         dout.writeInt(TYPE);

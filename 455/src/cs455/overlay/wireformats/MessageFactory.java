@@ -27,16 +27,16 @@ public class MessageFactory {
      * bytes
      */
     public static Message createMessage(byte[] marshalledBytes)
-            throws IOException {
+        throws IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(marshalledBytes);
         DataInputStream din = new DataInputStream(new BufferedInputStream(bais));
 
         int messageType = din.readInt();
         switch (messageType) {
-            case Protocol.REGISTER_REQUEST:
-                return new RegisterRequest(marshalledBytes);
-            default:
-                throw new IOException("Unrecognized message type");
+        case Protocol.REGISTER_REQUEST:
+            return new RegisterRequest(marshalledBytes);
+        default:
+            throw new IOException("Unrecognized message type");
         }
     }
 }

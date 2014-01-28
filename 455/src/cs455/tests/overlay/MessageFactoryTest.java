@@ -28,7 +28,7 @@ public class MessageFactoryTest {
         String assignedID = "donuts";
         try {
             byte[] marshalledBytes = new RegisterRequest(IPAddress, port,
-                    assignedID).getBytes();
+                assignedID).getBytes();
             Message message = MessageFactory.createMessage(marshalledBytes);
             assertEquals(message.getType(), Protocol.REGISTER_REQUEST);
             RegisterRequest request = (RegisterRequest) message;

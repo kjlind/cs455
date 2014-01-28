@@ -36,7 +36,7 @@ public class ReceiverThread extends Thread {
      */
     private byte[] receiveBytes() throws IOException {
         DataInputStream din = new DataInputStream(new BufferedInputStream(
-                socket.getInputStream()));
+            socket.getInputStream()));
 
         int dataSize = din.readInt();
         byte[] data = new byte[dataSize];

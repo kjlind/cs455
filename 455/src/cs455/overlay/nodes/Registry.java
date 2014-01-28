@@ -37,8 +37,8 @@ public class Registry extends Node {
             e.printStackTrace();
         }
     }
-    
-    public Registry(){
+
+    public Registry() {
         super();
     }
 
@@ -46,12 +46,12 @@ public class Registry extends Node {
     public void handleMessage(byte[] messageBytes) throws IOException {
         Message message = MessageFactory.createMessage(messageBytes);
         switch (message.getType()) {
-            case Protocol.REGISTER_REQUEST:
-                System.out.println("It's a register request!!1!!");
-                break;
-            default:
-                // TODO: better error handling here
-                throw new IOException("Bad message type!");
+        case Protocol.REGISTER_REQUEST:
+            System.out.println("It's a register request!!1!!");
+            break;
+        default:
+            // TODO: better error handling here
+            throw new IOException("Bad message type!");
         }
     }
 }

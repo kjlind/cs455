@@ -39,10 +39,10 @@ public class Client {
      * @throws UnknownHostException if the host cannot be determined
      */
     public void connectTo(String IPAddress, int port)
-            throws UnknownHostException, IOException {
+        throws UnknownHostException, IOException {
         if (DEBUG) {
             System.out.println("Client: Attempting to connect to " + IPAddress
-                    + " on port " + port);
+                + " on port " + port);
         }
 
         Socket socket = new Socket(IPAddress, port);

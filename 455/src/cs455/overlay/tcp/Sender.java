@@ -40,7 +40,7 @@ public class Sender {
      */
     public void sendBytes(byte[] data) throws IOException {
         DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(
-                socket.getOutputStream()));
+            socket.getOutputStream()));
         int dataSize = data.length;
         dout.writeInt(dataSize);
         dout.write(data);

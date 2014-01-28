@@ -59,11 +59,11 @@ public abstract class Node {
      * server
      */
     public void startServer(int port) throws IOException {
-        if(DEBUG){
+        if (DEBUG) {
             System.out.println("Node: just before starting server");
         }
         new ServerThread(port, this).start();
-        if(DEBUG){
+        if (DEBUG) {
             System.out.println("Node: just after starting server");
         }
     }

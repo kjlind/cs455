@@ -61,11 +61,11 @@ public class ServerThread extends Thread {
 
                 if (DEBUG) {
                     System.out.println("Server: Successfully accepted incoming"
-                            + " connection");
+                        + " connection");
                 }
             } catch (IOException e) {
                 System.err.println("I/O error while waiting for/trying to"
-                        + " accept an incoming connection:");
+                    + " accept an incoming connection:");
                 e.printStackTrace();
             }
         }

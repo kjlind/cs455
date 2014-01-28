@@ -82,7 +82,7 @@ public class MessagingNode extends Node {
 
         Sender registrySender = senders.get(0);
         RegisterRequest request = new RegisterRequest("shrantiquid", port,
-                assignedID);
+            assignedID);
         try {
             registrySender.sendBytes(request.getBytes());
         } catch (IOException e) {
