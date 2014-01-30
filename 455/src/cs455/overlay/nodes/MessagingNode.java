@@ -36,7 +36,8 @@ import cs455.overlay.wireformats.RegisterRequest;
 public class MessagingNode extends Node implements Runnable {
     private static final boolean DEBUG = true;
 
-    private final int portnum;
+    // TODO: remove assignedID (and portnum from constructor)
+    private final int portnum; // TODO: move this to Node?
     private final String assignedID;
     private final String registryHost;
     private final int registryPort;
@@ -91,6 +92,7 @@ public class MessagingNode extends Node implements Runnable {
     public void run() {
         /* start server thread */
         try {
+            // TODO: startServer without specifying a portnum
             startServer(portnum);
         } catch (IOException e) {
             System.out.println("Unable to set up ServerThread to listen for"
@@ -210,6 +212,7 @@ public class MessagingNode extends Node implements Runnable {
     }
 
     public static void main(String args[]) {
+        // TODO: only read registry host and registry port from command line
         /* parse command line arguments */
         if (args.length != 4) {
             System.out.println("Usage: MessagingNode portnum assignedID"

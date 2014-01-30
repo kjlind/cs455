@@ -67,4 +67,7 @@ public abstract class Node {
             System.out.println("Node: just after starting server");
         }
     }
+
+    // TODO: startServer() which automatically configures, returns portnum
+    // (unless portnum is moved up to here from subclasses)
 }

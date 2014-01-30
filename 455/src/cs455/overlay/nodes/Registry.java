@@ -29,11 +29,22 @@ import cs455.overlay.wireformats.Protocol;
 public class Registry extends Node implements Runnable {
     private final int portnum;
 
+    /**
+     * Creates a new Registry which will run its Server on the specified port,
+     * (assuming a valid port number).
+     * 
+     * @param portnum the port number on which the new registry should listen
+     * for connections
+     */
     public Registry(int portnum) {
         super();
         this.portnum = portnum;
     }
 
+    /**
+     * @return the port number on which this registry is listening for
+     * connections
+     */
     public int getPort() {
         return portnum;
     }
@@ -47,7 +58,8 @@ public class Registry extends Node implements Runnable {
             System.out.println(message);
             break;
         default:
-            // TODO: better error handling here
+            // TODO: better error handling here (just ignore unrecognized types
+            // maybe?)
             throw new IOException("Bad message type!");
         }
     }
