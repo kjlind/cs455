@@ -58,7 +58,7 @@ public abstract class Node {
      * @throws IOException if an I/O error occurs when trying to set up the
      * server
      */
-    public void startServer(int port) throws IOException {
+    protected void startServer(int port) throws IOException {
         if (DEBUG) {
             System.out.println("Node: just before starting server");
         }
