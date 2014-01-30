@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import org.junit.Before;
 import org.junit.Test;
 
+import cs455.overlay.wireformats.DeregisterRequest;
 import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
 import cs455.overlay.wireformats.Protocol;
@@ -37,7 +38,28 @@ public class MessageFactoryTest {
             assertEquals(request.getAssignedID(), assignedID);
         } catch (IOException e) {
             e.printStackTrace();
-            fail("Unexpected I/O error :( (see console output for details)");
+            fail("Unexpected I/O error on getBytes() method of valid"
+                + " RegisterRequest :( (see console output for details)");
+        }
+    }
+
+    @Test
+    public void testCreateDeregisterRequest() {
+        // valid -- deregister request
+        String IPAddress = "denver.cs.colostate.edu";
+        int port = 5555;
+        try {
+            byte[] marshalledBytes = new DeregisterRequest(IPAddress, port)
+                .getBytes();
+            Message message = MessageFactory.createMessage(marshalledBytes);
+            assertEquals(message.getType(), Protocol.DEREGISTER_REQUEST);
+            DeregisterRequest request = (DeregisterRequest) message;
+            assertEquals(request.getIPAddress(), IPAddress);
+            assertEquals(request.getPort(), port);
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Unexpected I/O error on getBytes() method of valid"
+                + " DeregisterRequest :( (see console output for details)");
         }
     }
 
