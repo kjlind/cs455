@@ -1,6 +1,7 @@
 package cs455.overlay.nodes;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
@@ -27,15 +28,48 @@ import cs455.overlay.wireformats.Protocol;
  */
 public class Registry extends Node {
     public static void main(String args[]) {
+        /* parse command line args */
+        if (args.length != 1) {
+            System.out.println("Usage: Registry portnum");
+            System.exit(-1);
+        }
+
+        int port = 0;
+        try {
+            port = Integer.parseInt(args[0]);
+        } catch (NumberFormatException e) {
+            System.out.println("Portnum must be an integer; " + args[0]
+                + " is not an int!");
+        }
+
+        /* construct Registry */
         Registry registry = new Registry();
-        // TODO: more stringent error checking/ handling
-        int port = Integer.parseInt(args[0]);
+
+        /* start server thread */
         try {
             registry.startServer(port);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            System.out.println("Unable to set up ServerThread to listen for"
+                + " connections; an I/O error occurred");
+            System.out.println("Details:");
             e.printStackTrace();
+            System.exit(-1);
         }
+
+        /* handle CLI input */
+        Scanner kbd = new Scanner(System.in);
+        System.out.println("Waiting for a command: ");
+        String command = kbd.next();
+        while (!command.equals("exit")) {
+            // do something here
+            System.out.println("You said: " + command); // purely a placeholder
+            command = kbd.next();
+        }
+
+        /* clean up */
+        kbd.close();
+        // TODO: nicer exit?
+        System.exit(0);
     }
 
     public Registry() {
@@ -48,6 +82,7 @@ public class Registry extends Node {
         switch (message.getType()) {
         case Protocol.REGISTER_REQUEST:
             System.out.println("It's a register request!!1!!");
+            System.out.println(message);
             break;
         default:
             // TODO: better error handling here

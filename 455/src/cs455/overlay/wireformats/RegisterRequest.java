@@ -132,4 +132,13 @@ public class RegisterRequest implements Message {
 
         return marshalledBytes;
     }
+
+    @Override
+    public String toString() {
+        String string = "Register Request\n";
+        string += "IPAddress: " + IPAddress + "\n";
+        string += "port: " + port + "\n";
+        string += "assignedID: " + assignedID;
+        return string;
+    }
 }

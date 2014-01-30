@@ -31,14 +31,18 @@ public class Client {
 
     /**
      * Attempts to set up a new connection with a server listening at the given
-     * IPAddress on the given port number.
+     * IPAddress on the given port number. If successful, creates and starts a
+     * ReceiverThread with the newly connected socket, and creates and returns a
+     * Sender with the new socket.
      * 
      * @param IPAddress the address of the server to connect to
      * @param port the port number of the server to connect to
+     * @return a Sender which can be used to send messages over the new
+     * connection
      * @throws IOException if an I/O error occurs while trying to connect
      * @throws UnknownHostException if the host cannot be determined
      */
-    public void connectTo(String IPAddress, int port)
+    public Sender connectTo(String IPAddress, int port)
         throws UnknownHostException, IOException {
         if (DEBUG) {
             System.out.println("Client: Attempting to connect to " + IPAddress
@@ -46,11 +50,11 @@ public class Client {
         }
 
         Socket socket = new Socket(IPAddress, port);
-        new ReceiverThread(socket, targetedNode).start();
-        targetedNode.addSender(new Sender(socket));
-
         if (DEBUG) {
             System.out.println("Client: Successfully connected");
         }
+
+        new ReceiverThread(socket, targetedNode).start();
+        return new Sender(socket);
     }
 }

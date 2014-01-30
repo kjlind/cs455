@@ -1,9 +1,9 @@
 package cs455.overlay.nodes;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Scanner;
 
 import cs455.overlay.tcp.Client;
 import cs455.overlay.tcp.Sender;
@@ -37,58 +37,122 @@ public class MessagingNode extends Node {
     private static final boolean DEBUG = true;
 
     public static void main(String args[]) {
-        // TODO: better error handling
-        MessagingNode node = new MessagingNode();
-
-        // set up server
-        if (DEBUG) {
-            System.out.println("Main MN: setting up server");
+        /* parse command line arguments */
+        if (args.length != 4) {
+            System.out.println("Usage: MessagingNode portnum assignedID"
+                + " registryHost registryPort");
+            System.exit(-1);
         }
 
-        int port = Integer.parseInt(args[0]);
+        int port = 0;
         try {
-            node.startServer(port);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        // connect to registry
-        if (DEBUG) {
-            System.out.println("Main MN: connecting to registry");
+            port = Integer.parseInt(args[0]);
+        } catch (NumberFormatException e) {
+            System.out.println("portnum must be an integer; " + args[0]
+                + " is not an int!");
+            System.exit(-1);
         }
 
         String assignedID = args[1];
         String registryHost = args[2];
-        int registryPort = Integer.parseInt(args[3]);
+
+        int registryPort = 0;
         try {
-            new Client(node).connectTo(registryHost, registryPort);
+            registryPort = Integer.parseInt(args[3]);
+        } catch (NumberFormatException e) {
+            System.out.println("registryPort must be an integer; " + args[3]
+                + " is not an int!");
+        }
+
+        /* construct MessagingNode */
+        MessagingNode node = new MessagingNode();
+
+        /* start server thread */
+        if (DEBUG) {
+            System.out.println("Main MN: setting up server");
+        }
+
+        try {
+            node.startServer(port);
+        } catch (IOException e) {
+            System.out.println("Unable to set up ServerThread to listen for"
+                + " connections; an I/O error occurred");
+            System.out.println("Details:");
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        /* connect to Registry */
+        if (DEBUG) {
+            System.out.println("Main MN: connecting to registry");
+        }
+
+        Sender registrySender = null;
+        try {
+            registrySender = new Client(node).connectTo(registryHost,
+                registryPort);
+        } catch (UnknownHostException e) {
+            System.out.println("Unable to connect to registry at the provided"
+                + " hostname: " + registryHost + " and port number: "
+                + registryPort);
+            System.out.println("Unknown host; seems no one is listening"
+                + " there!");
+            System.out.println("Details:");
+            e.printStackTrace();
+            System.exit(-1);
+        } catch (IOException e) {
+            System.out.println("Unable to connect to registry at the provided"
+                + " hostname: " + registryHost + " and port number: "
+                + registryPort);
+            System.out.println("An I/O error occured");
+            System.out.println("Details:");
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        /* send register request */
+        String nodename = "";
+        try {
+            nodename = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
-
-        // token message sending to test; this will need to change a lot
-        List<Sender> senders = new ArrayList<Sender>();
-        senders.addAll(node.getSenders());
+        RegisterRequest request = new RegisterRequest(nodename, port,
+            assignedID);
 
         if (DEBUG) {
-            System.out.println("Main MN: sending message to registry");
-            System.out.println("Main MN: #senders = " + senders.size());
+            System.out.println("Main MN: sending register request to registry");
         }
 
-        Sender registrySender = senders.get(0);
-        RegisterRequest request = new RegisterRequest("shrantiquid", port,
-            assignedID);
         try {
             registrySender.sendBytes(request.getBytes());
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            System.out.println("Unable to send the register request; an I/O"
+                + " error occurred");
+            System.out.println("Details:");
             e.printStackTrace();
+            // TODO: disconnect more gracefully
+            System.exit(-1);
         }
+
+        /* handle CLI input */
+        Scanner kbd = new Scanner(System.in);
+        System.out.println("Waiting for a command: ");
+        String command = kbd.next();
+        while (!command.equals("exit")) {
+            // do something here
+            System.out.println("You said: " + command); // purely a placeholder
+            command = kbd.next();
+        }
+        // TODO: handle failed deregistration better? should probably allow user
+        // to try again, and/or remain in CLI loop
+
+        /* deregister and clean up */
+        kbd.close();
+        // send a deregister request
+        // TODO: nicer exiting
+        System.exit(0);
     }
 
     public MessagingNode() {
