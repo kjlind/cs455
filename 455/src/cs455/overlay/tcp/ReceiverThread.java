@@ -60,6 +60,7 @@ public class ReceiverThread extends Thread {
                 byte[] data = receiveBytes();
                 targetedNode.handleMessage(data);
             } catch (IOException e) {
+                // TODO: handle unexpected disconnection
                 System.err.println("I/O error while trying to read data: ");
                 e.printStackTrace();
             }
