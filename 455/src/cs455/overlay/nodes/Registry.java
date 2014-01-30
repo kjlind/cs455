@@ -26,7 +26,77 @@ import cs455.overlay.wireformats.Protocol;
  * @author Kira Lindburg
  * @date Jan 22, 2014
  */
-public class Registry extends Node {
+public class Registry extends Node implements Runnable {
+    private final int portnum;
+
+    public Registry(int portnum) {
+        super();
+        this.portnum = portnum;
+    }
+
+    public int getPort() {
+        return portnum;
+    }
+
+    @Override
+    public void handleMessage(byte[] messageBytes) throws IOException {
+        Message message = MessageFactory.createMessage(messageBytes);
+        switch (message.getType()) {
+        case Protocol.REGISTER_REQUEST:
+            System.out.println("It's a register request!!1!!");
+            System.out.println(message);
+            break;
+        default:
+            // TODO: better error handling here
+            throw new IOException("Bad message type!");
+        }
+    }
+
+    @Override
+    public void run() {
+        /* start server thread */
+        try {
+            startServer(portnum);
+        } catch (IOException e) {
+            System.out.println("Unable to set up ServerThread to listen for"
+                + " connections; an I/O error occurred");
+            System.out.println("Details:");
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        /* handle CLI input */
+        handleCommandLine();
+
+        /* clean up */
+        cleanUp();
+        // TODO: nicer exit?
+    }
+
+    /**
+     * Helper method for run. Reads and handles commands from the command line
+     * in a loop, until the exit command is specified. Returns when the exit
+     * command is given.
+     */
+    private void handleCommandLine() {
+        Scanner kbd = new Scanner(System.in);
+        System.out.println("Waiting for a command: ");
+        String command = kbd.next();
+        while (!command.equals("exit")) {
+            // do something here
+            System.out.println("You said: " + command); // purely a placeholder
+            command = kbd.next();
+        }
+
+        kbd.close();
+    }
+
+    /**
+     * Handles any clean up necessary when the Registry exits.
+     */
+    private void cleanUp() {
+    }
+
     public static void main(String args[]) {
         /* parse command line args */
         if (args.length != 1) {
@@ -43,50 +113,11 @@ public class Registry extends Node {
         }
 
         /* construct Registry */
-        Registry registry = new Registry();
+        Registry registry = new Registry(port);
 
-        /* start server thread */
-        try {
-            registry.startServer(port);
-        } catch (IOException e) {
-            System.out.println("Unable to set up ServerThread to listen for"
-                + " connections; an I/O error occurred");
-            System.out.println("Details:");
-            e.printStackTrace();
-            System.exit(-1);
-        }
+        /* run things */
+        registry.run();
 
-        /* handle CLI input */
-        Scanner kbd = new Scanner(System.in);
-        System.out.println("Waiting for a command: ");
-        String command = kbd.next();
-        while (!command.equals("exit")) {
-            // do something here
-            System.out.println("You said: " + command); // purely a placeholder
-            command = kbd.next();
-        }
-
-        /* clean up */
-        kbd.close();
-        // TODO: nicer exit?
         System.exit(0);
-    }
-
-    public Registry() {
-        super();
-    }
-
-    @Override
-    public void handleMessage(byte[] messageBytes) throws IOException {
-        Message message = MessageFactory.createMessage(messageBytes);
-        switch (message.getType()) {
-        case Protocol.REGISTER_REQUEST:
-            System.out.println("It's a register request!!1!!");
-            System.out.println(message);
-            break;
-        default:
-            // TODO: better error handling here
-            throw new IOException("Bad message type!");
-        }
     }
 }

@@ -243,5 +243,7 @@ public class MessagingNode extends Node implements Runnable {
 
         /* run stuff */
         node.run();
+
+        System.exit(0);
     }
 }
