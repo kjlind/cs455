@@ -23,16 +23,17 @@ public class RegisterRequest implements Message {
 
     private String IPAddress;
     private int port;
-    private String assignedID;
+
+    // private String assignedID;
 
     /**
      * Creates a new RegisterRequest with the given IPAddress, port number, and
      * assignedID fields.
      */
-    public RegisterRequest(String IPAddress, int port, String assignedID) {
+    public RegisterRequest(String IPAddress, int port) {
         this.IPAddress = IPAddress;
         this.port = port;
-        this.assignedID = assignedID;
+        // this.assignedID = assignedID;
     }
 
     /**
@@ -64,10 +65,10 @@ public class RegisterRequest implements Message {
         port = din.readInt();
 
         // assigned ID field (length:assignedID)
-        int IDBytesLength = din.readInt();
-        byte[] assignedIDBytes = new byte[IDBytesLength];
-        din.readFully(assignedIDBytes);
-        assignedID = new String(assignedIDBytes);
+        // int IDBytesLength = din.readInt();
+        // byte[] assignedIDBytes = new byte[IDBytesLength];
+        // din.readFully(assignedIDBytes);
+        // assignedID = new String(assignedIDBytes);
     }
 
     /**
@@ -87,9 +88,9 @@ public class RegisterRequest implements Message {
     /**
      * @return the originating assignedID field of this register request
      */
-    public String getAssignedID() {
-        return assignedID;
-    }
+    // public String getAssignedID() {
+    // return assignedID;
+    // }
 
     /**
      * @return Protocol.REGISTER_REQUEST
@@ -119,10 +120,10 @@ public class RegisterRequest implements Message {
         dout.writeInt(port);
 
         // assigned ID field (length:assignedID)
-        byte[] assignedIDBytes = assignedID.getBytes();
-        int IDBytesLength = assignedIDBytes.length;
-        dout.writeInt(IDBytesLength);
-        dout.write(assignedIDBytes);
+        // byte[] assignedIDBytes = assignedID.getBytes();
+        // int IDBytesLength = assignedIDBytes.length;
+        // dout.writeInt(IDBytesLength);
+        // dout.write(assignedIDBytes);
 
         dout.flush();
         marshalledBytes = baos.toByteArray();
@@ -138,7 +139,7 @@ public class RegisterRequest implements Message {
         String string = "Register Request\n";
         string += "IPAddress: " + IPAddress + "\n";
         string += "port: " + port + "\n";
-        string += "assignedID: " + assignedID;
+        // string += "assignedID: " + assignedID;
         return string;
     }
 }

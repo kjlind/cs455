@@ -15,11 +15,12 @@ public class RegisterRequestTest {
 
     private String IPAddress = "kitaro.cs.colostate.edu";
     private int port = 19;
-    private String assignedID = "KITTEN";
+
+    // private String assignedID = "KITTEN";
 
     @Before
     public void setUp() throws Exception {
-        reginald = new RegisterRequest(IPAddress, port, assignedID);
+        reginald = new RegisterRequest(IPAddress, port);
     }
 
     @Test
@@ -38,7 +39,7 @@ public class RegisterRequestTest {
             RegisterRequest regena = new RegisterRequest(marsha);
             assertEquals(regena.getIPAddress(), IPAddress);
             assertEquals(regena.getPort(), port);
-            assertEquals(regena.getAssignedID(), assignedID);
+            // assertEquals(regena.getAssignedID(), assignedID);
         } catch (IOException e) {
             e.printStackTrace();
             fail("Threw an I/O exception with what should be valid marshalling");

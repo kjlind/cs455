@@ -27,27 +27,26 @@ import cs455.overlay.wireformats.Protocol;
  * @date Jan 22, 2014
  */
 public class Registry extends Node implements Runnable {
-    private final int portnum;
+//    private final int portnum;
 
     /**
      * Creates a new Registry which will run its Server on the specified port,
      * (assuming a valid port number).
      * 
-     * @param portnum the port number on which the new registry should listen
+     * @param port the port number on which the new registry should listen
      * for connections
      */
-    public Registry(int portnum) {
-        super();
-        this.portnum = portnum;
+    public Registry(int port) {
+        super(port);
     }
 
     /**
      * @return the port number on which this registry is listening for
      * connections
      */
-    public int getPort() {
-        return portnum;
-    }
+//    public int getPort() {
+//        return portnum;
+//    }
 
     @Override
     public void handleMessage(byte[] messageBytes) throws IOException {
@@ -68,7 +67,7 @@ public class Registry extends Node implements Runnable {
     public void run() {
         /* start server thread */
         try {
-            startServer(portnum);
+            startServer();
         } catch (IOException e) {
             System.out.println("Unable to set up ServerThread to listen for"
                 + " connections; an I/O error occurred");

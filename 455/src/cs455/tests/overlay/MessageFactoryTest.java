@@ -26,16 +26,16 @@ public class MessageFactoryTest {
         // valid -- register request
         String IPAddress = "denver.cs.colostate.edu";
         int port = 5555;
-        String assignedID = "donuts";
+        // String assignedID = "donuts";
         try {
-            byte[] marshalledBytes = new RegisterRequest(IPAddress, port,
-                assignedID).getBytes();
+            byte[] marshalledBytes = new RegisterRequest(IPAddress, port)
+                .getBytes();
             Message message = MessageFactory.createMessage(marshalledBytes);
             assertEquals(message.getType(), Protocol.REGISTER_REQUEST);
             RegisterRequest request = (RegisterRequest) message;
             assertEquals(request.getIPAddress(), IPAddress);
             assertEquals(request.getPort(), port);
-            assertEquals(request.getAssignedID(), assignedID);
+            // assertEquals(request.getAssignedID(), assignedID);
         } catch (IOException e) {
             e.printStackTrace();
             fail("Unexpected I/O error on getBytes() method of valid"

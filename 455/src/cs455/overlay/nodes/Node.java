@@ -20,10 +20,28 @@ import cs455.overlay.tcp.ServerThread;
 public abstract class Node {
     public static final boolean DEBUG = true;
 
+    private int portnum;
+
     private List<Sender> senders;
 
+    /**
+     * Creates a new node with no set port number; when startServer() is called,
+     * a port number will be automatically configured.
+     */
     public Node() {
+        portnum = 0;
         senders = new LinkedList<Sender>();
+    }
+
+    /**
+     * Creates a new node which is associated with the given port.
+     * 
+     * @param port the port number on which this node should listen for incoming
+     * connections
+     */
+    public Node(int port) {
+        this();
+        portnum = port;
     }
 
     // TODO: change byte[] to Message, have receiver thread use factory?
@@ -34,6 +52,14 @@ public abstract class Node {
      * or handle the message
      */
     public abstract void handleMessage(byte[] messageBytes) throws IOException;
+
+    /**
+     * @return the port number on which this registry is listening for
+     * connections
+     */
+    public int getPort() {
+        return portnum;
+    }
 
     /**
      * @return this node's list of senders; it will contain one Sender for each
@@ -52,22 +78,47 @@ public abstract class Node {
     }
 
     /**
-     * Creates and starts a new ServerThread associated with this node.
+     * Creates and starts a new ServerThread associated with this node. Sets the
+     * port number for this Node to the specified port.
      * 
      * @param port the port on which the server should run
      * @throws IOException if an I/O error occurs when trying to set up the
      * server
      */
-    protected void startServer(int port) throws IOException {
-        if (DEBUG) {
-            System.out.println("Node: just before starting server");
-        }
-        new ServerThread(port, this).start();
-        if (DEBUG) {
-            System.out.println("Node: just after starting server");
-        }
-    }
+    // protected void startServer(int port) throws IOException {
+    // if (DEBUG) {
+    // System.out.println("Node: just before starting server");
+    // }
+    // new ServerThread(port, this).start();
+    // portnum = port;
+    // if (DEBUG) {
+    // System.out.println("Node: just after starting server");
+    // }
+    // }
 
     // TODO: startServer() which automatically configures, returns portnum
     // (unless portnum is moved up to here from subclasses)
+    /**
+     * Creates and starts a new ServerThread associated with this node. If a
+     * port number was specified upon creation of this Node, the new
+     * ServerThread will run on the specified port. Otherwise, a port number
+     * will be automatically configured; getPort() will return this configured
+     * port number.
+     * 
+     * @throws IOException if an I/O error occurs when trying to set up the
+     * server
+     */
+    protected void startServer() throws IOException {
+        if (DEBUG) {
+            System.out.println("Node: just before starting server");
+            System.out.println("Node: current portnum = " + portnum);
+        }
+        ServerThread server = new ServerThread(portnum, this);
+        server.start();
+        portnum = server.getPort();
+        if (DEBUG) {
+            System.out.println("Node: just after starting server");
+            System.out.println("Node: current portnum = " + portnum);
+        }
+    }
 }

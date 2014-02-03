@@ -37,27 +37,26 @@ public class MessagingNode extends Node implements Runnable {
     private static final boolean DEBUG = true;
 
     // TODO: remove assignedID (and portnum from constructor)
-    private final int portnum; // TODO: move this to Node?
-    private final String assignedID;
+    // private int portnum; // TODO: move this to Node?
+    // private final String assignedID;
     private final String registryHost;
     private final int registryPort;
 
-    public MessagingNode(int portnum, String assignedID, String registryHost,
-        int registryPort) {
+    public MessagingNode(String registryHost, int registryPort) {
         super();
-        this.portnum = portnum;
-        this.assignedID = assignedID;
+        // this.portnum = portnum;
+        // this.assignedID = assignedID;
         this.registryHost = registryHost;
         this.registryPort = registryPort;
     }
 
-    public int getPort() {
-        return portnum;
-    }
-
-    public String getAssignedID() {
-        return assignedID;
-    }
+    // public int getPort() {
+    // return portnum;
+    // }
+    //
+    // public String getAssignedID() {
+    // return assignedID;
+    // }
 
     /**
      * @return the host name of the machine on which this MessagingNode resides
@@ -93,7 +92,7 @@ public class MessagingNode extends Node implements Runnable {
         /* start server thread */
         try {
             // TODO: startServer without specifying a portnum
-            startServer(portnum);
+            startServer();
         } catch (IOException e) {
             System.out.println("Unable to set up ServerThread to listen for"
                 + " connections; an I/O error occurred");
@@ -172,8 +171,9 @@ public class MessagingNode extends Node implements Runnable {
      * register request
      */
     private void sendRegisterRequest(Sender registrySender) throws IOException {
+        // TODO: get and send the actual portnum insetead of 0
         RegisterRequest request = new RegisterRequest(getLocalIPAddress(),
-            portnum, assignedID);
+            getPort());
 
         if (DEBUG) {
             System.out.println("Main MN: sending register request to registry");
@@ -214,35 +214,34 @@ public class MessagingNode extends Node implements Runnable {
     public static void main(String args[]) {
         // TODO: only read registry host and registry port from command line
         /* parse command line arguments */
-        if (args.length != 4) {
-            System.out.println("Usage: MessagingNode portnum assignedID"
-                + " registryHost registryPort");
+        if (args.length != 2) {
+            System.out.println("Usage: MessagingNode registryHost"
+                + " registryPort");
             System.exit(-1);
         }
 
-        int port = 0;
-        try {
-            port = Integer.parseInt(args[0]);
-        } catch (NumberFormatException e) {
-            System.out.println("portnum must be an integer; " + args[0]
-                + " is not an int!");
-            System.exit(-1);
-        }
+        // int port = 0;
+        // try {
+        // port = Integer.parseInt(args[0]);
+        // } catch (NumberFormatException e) {
+        // System.out.println("portnum must be an integer; " + args[0]
+        // + " is not an int!");
+        // System.exit(-1);
+        // }
 
-        String assignedID = args[1];
-        String registryHost = args[2];
+        // String assignedID = args[1];
+        String registryHost = args[0];
 
         int registryPort = 0;
         try {
-            registryPort = Integer.parseInt(args[3]);
+            registryPort = Integer.parseInt(args[1]);
         } catch (NumberFormatException e) {
             System.out.println("registryPort must be an integer; " + args[3]
                 + " is not an int!");
         }
 
         /* construct MessagingNode */
-        MessagingNode node = new MessagingNode(port, assignedID, registryHost,
-            registryPort);
+        MessagingNode node = new MessagingNode(registryHost, registryPort);
 
         /* run stuff */
         node.run();
