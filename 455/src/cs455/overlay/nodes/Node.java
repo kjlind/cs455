@@ -96,8 +96,6 @@ public abstract class Node {
     // }
     // }
 
-    // TODO: startServer() which automatically configures, returns portnum
-    // (unless portnum is moved up to here from subclasses)
     /**
      * Creates and starts a new ServerThread associated with this node. If a
      * port number was specified upon creation of this Node, the new
@@ -113,9 +111,13 @@ public abstract class Node {
             System.out.println("Node: just before starting server");
             System.out.println("Node: current portnum = " + portnum);
         }
+
         ServerThread server = new ServerThread(portnum, this);
         server.start();
+
+        /* get the new portnum if one was automatically set up */
         portnum = server.getPort();
+
         if (DEBUG) {
             System.out.println("Node: just after starting server");
             System.out.println("Node: current portnum = " + portnum);

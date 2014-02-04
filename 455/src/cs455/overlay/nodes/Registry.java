@@ -6,6 +6,7 @@ import java.util.Scanner;
 import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
 import cs455.overlay.wireformats.Protocol;
+import cs455.overlay.wireformats.RegisterRequest;
 
 /**
  * The Registry coordinates a network of MessagingNodes. It maintains a record
@@ -27,26 +28,16 @@ import cs455.overlay.wireformats.Protocol;
  * @date Jan 22, 2014
  */
 public class Registry extends Node implements Runnable {
-//    private final int portnum;
-
     /**
      * Creates a new Registry which will run its Server on the specified port,
      * (assuming a valid port number).
      * 
-     * @param port the port number on which the new registry should listen
-     * for connections
+     * @param port the port number on which the new registry should listen for
+     * connections
      */
     public Registry(int port) {
         super(port);
     }
-
-    /**
-     * @return the port number on which this registry is listening for
-     * connections
-     */
-//    public int getPort() {
-//        return portnum;
-//    }
 
     @Override
     public void handleMessage(byte[] messageBytes) throws IOException {
@@ -55,12 +46,24 @@ public class Registry extends Node implements Runnable {
         case Protocol.REGISTER_REQUEST:
             System.out.println("It's a register request!!1!!");
             System.out.println(message);
+
+            RegisterRequest request = (RegisterRequest) message;
+            handleRegisterRequest(request);
             break;
         default:
             // TODO: better error handling here (just ignore unrecognized types
             // maybe?)
             throw new IOException("Bad message type!");
         }
+    }
+
+    /**
+     * If the messaging node at the IP address and port listed is not already
+     * registered, registers the node. Either way, sends a register response to
+     * the messaging node indicating either success or failure.
+     */
+    private void handleRegisterRequest(RegisterRequest request) {
+
     }
 
     @Override

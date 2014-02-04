@@ -2,6 +2,7 @@ package cs455.overlay.tcp;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -59,8 +60,11 @@ public class ReceiverThread extends Thread {
             try {
                 byte[] data = receiveBytes();
                 targetedNode.handleMessage(data);
+            } catch (EOFException e) {
+                System.err.println("EOF exception while trying to read data: ");
+                e.printStackTrace();
+                break;
             } catch (IOException e) {
-                // TODO: handle unexpected disconnection
                 System.err.println("I/O error while trying to read data: ");
                 e.printStackTrace();
             }

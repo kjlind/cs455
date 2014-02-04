@@ -27,8 +27,15 @@ public class Sender {
     /**
      * @return the IPAddress of the node to which this sender is connected
      */
-    public String getRecieverIPAddress() {
+    public String getReceiverIPAddress() {
         return socket.getInetAddress().getHostName();
+    }
+    
+    /**
+     * @return the port number of the receiver to which this sender is connected
+     */
+    public int getReceiverPort(){
+        return socket.getPort();
     }
 
     /**

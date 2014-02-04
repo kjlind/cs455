@@ -36,27 +36,15 @@ import cs455.overlay.wireformats.RegisterRequest;
 public class MessagingNode extends Node implements Runnable {
     private static final boolean DEBUG = true;
 
-    // TODO: remove assignedID (and portnum from constructor)
-    // private int portnum; // TODO: move this to Node?
-    // private final String assignedID;
     private final String registryHost;
     private final int registryPort;
 
     public MessagingNode(String registryHost, int registryPort) {
         super();
-        // this.portnum = portnum;
-        // this.assignedID = assignedID;
+
         this.registryHost = registryHost;
         this.registryPort = registryPort;
     }
-
-    // public int getPort() {
-    // return portnum;
-    // }
-    //
-    // public String getAssignedID() {
-    // return assignedID;
-    // }
 
     /**
      * @return the host name of the machine on which this MessagingNode resides
@@ -171,7 +159,6 @@ public class MessagingNode extends Node implements Runnable {
      * register request
      */
     private void sendRegisterRequest(Sender registrySender) throws IOException {
-        // TODO: get and send the actual portnum insetead of 0
         RegisterRequest request = new RegisterRequest(getLocalIPAddress(),
             getPort());
 
@@ -212,7 +199,6 @@ public class MessagingNode extends Node implements Runnable {
     }
 
     public static void main(String args[]) {
-        // TODO: only read registry host and registry port from command line
         /* parse command line arguments */
         if (args.length != 2) {
             System.out.println("Usage: MessagingNode registryHost"
@@ -220,16 +206,6 @@ public class MessagingNode extends Node implements Runnable {
             System.exit(-1);
         }
 
-        // int port = 0;
-        // try {
-        // port = Integer.parseInt(args[0]);
-        // } catch (NumberFormatException e) {
-        // System.out.println("portnum must be an integer; " + args[0]
-        // + " is not an int!");
-        // System.exit(-1);
-        // }
-
-        // String assignedID = args[1];
         String registryHost = args[0];
 
         int registryPort = 0;
