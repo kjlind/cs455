@@ -29,6 +29,47 @@ import cs455.overlay.wireformats.RegisterRequest;
  */
 public class Registry extends Node implements Runnable {
     /**
+     * NodeInfo stores the host name and port on which the server is listening
+     * for connections of a registered messaging node.
+     * 
+     * @author Kira Lindburg
+     * @date Feb 5, 2014
+     */
+    private class NodeInfo {
+        private String hostName;
+        private int serverPort;
+
+        public NodeInfo(String hostName, int serverPort) {
+            this.hostName = hostName;
+            this.serverPort = serverPort;
+        }
+
+        public String getHostName() {
+            return hostName;
+        }
+
+        public int getServerPort() {
+            return serverPort;
+        }
+
+        /**
+         * @return true if the other object is an instance of NodeInfo, and the
+         * host name and server port of other equal the host name and server
+         * port, respectively, of this node info object
+         */
+        @Override
+        public boolean equals(Object other) {
+            if (!(other instanceof NodeInfo)) {
+                return false;
+            }
+
+            NodeInfo otherInfo = (NodeInfo) other;
+            return (this.getHostName().equals(otherInfo.getHostName()))
+                && (this.getServerPort() == otherInfo.getServerPort());
+        }
+    }
+
+    /**
      * Creates a new Registry which will run its Server on the specified port,
      * (assuming a valid port number).
      * 
@@ -63,7 +104,9 @@ public class Registry extends Node implements Runnable {
      * the messaging node indicating either success or failure.
      */
     private void handleRegisterRequest(RegisterRequest request) {
-
+        NodeInfo info = new NodeInfo(request.getIPAddress(), request.getPort());
+        
+        
     }
 
     @Override

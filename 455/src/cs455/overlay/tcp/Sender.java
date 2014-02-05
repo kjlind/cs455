@@ -25,9 +25,9 @@ public class Sender {
     }
 
     /**
-     * @return the IPAddress of the node to which this sender is connected
+     * @return the host name of the node to which this sender is connected
      */
-    public String getReceiverIPAddress() {
+    public String getReceiverHostName() {
         return socket.getInetAddress().getHostName();
     }
     
