@@ -15,6 +15,7 @@ import java.net.Socket;
  */
 public class Sender {
     private Socket socket;
+    private String name;
 
     /**
      * Creates a new sender which will transmit data to whatever recipient with
@@ -22,6 +23,13 @@ public class Sender {
      */
     public Sender(Socket socket) {
         this.socket = socket;
+
+        /*
+         * set an initial (presumably unique unless something has broken) name
+         * for this sender so that it may be hashed properly
+         */
+        String initialName = getReceiverHostName() + ":" + getReceiverPort();
+        setName(initialName);
     }
 
     /**
@@ -30,16 +38,30 @@ public class Sender {
     public String getReceiverHostName() {
         return socket.getInetAddress().getHostName();
     }
-    
+
     /**
      * @return the port number of the receiver to which this sender is connected
      */
-    public int getReceiverPort(){
+    public int getReceiverPort() {
         return socket.getPort();
     }
 
     /**
-     * Sends the contents of the given byte array to the reciever with which
+     * @return a string which may be used to identify this sender (its name)
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the name of this sender to the provided string.
+     */
+    public void setName(String newName) {
+        name = newName;
+    }
+
+    /**
+     * Sends the contents of the given byte array to the receiver with which
      * this sender is connected.
      * 
      * @throws IOException if an I/O error occurs while attempting to send the

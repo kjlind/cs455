@@ -1,8 +1,7 @@
 package cs455.overlay.nodes;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Hashtable;
 
 import cs455.overlay.tcp.Sender;
 import cs455.overlay.tcp.ServerThread;
@@ -22,7 +21,7 @@ public abstract class Node {
 
     private int portnum;
 
-    private List<Sender> senders;
+    private Hashtable<String, Sender> senders;
 
     /**
      * Creates a new node with no set port number; when startServer() is called,
@@ -30,7 +29,7 @@ public abstract class Node {
      */
     public Node() {
         portnum = 0;
-        senders = new LinkedList<Sender>();
+        senders = new Hashtable<String, Sender>();
     }
 
     /**
@@ -62,19 +61,29 @@ public abstract class Node {
     }
 
     /**
-     * @return this node's list of senders; it will contain one Sender for each
+     * @return this node's table of senders; it will contain one Sender for each
      * current connection with another node
      */
-    public List<Sender> getSenders() {
+    public Hashtable<String, Sender> getSenders() {
         return senders;
     }
 
     /**
-     * Adds the provided sender to this node's list of senders (current
-     * connections with other nodes).
+     * Adds the provided sender to this node's table of senders (current
+     * connections with other nodes). It will be stored using its current name
+     * as the key.
      */
     public void addSender(Sender senderToAdd) {
-        senders.add(senderToAdd);
+        senders.put(senderToAdd.getName(), senderToAdd);
+    }
+
+    /**
+     * Removes the sender with the provided name from this node's table of
+     * senders, if it exists within the table. Does nothing if the key (name)
+     * does not exist.
+     */
+    public void removeSender(String senderName) {
+        senders.remove(senderName);
     }
 
     /**
