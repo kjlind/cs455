@@ -54,7 +54,7 @@ public class MessagingNode extends Node implements Runnable {
     }
 
     @Override
-    public void handleMessage(byte[] message) {
+    public synchronized void handleMessage(byte[] message) {
         // TODO Auto-generated method stub
 
     }

@@ -95,7 +95,8 @@ public class Registry extends Node implements Runnable {
     }
 
     @Override
-    public void handleMessage(byte[] messageBytes) throws IOException {
+    public synchronized void handleMessage(byte[] messageBytes)
+        throws IOException {
         Message message = MessageFactory.createMessage(messageBytes);
         switch (message.getType()) {
         case Protocol.REGISTER_REQUEST:
@@ -103,6 +104,7 @@ public class Registry extends Node implements Runnable {
                 System.out.println("\nRegistry: It's a register request!!1!!");
                 System.out.println(message);
             }
+            // TODO: verify somewhere that IP in message matches sender...
 
             RegisterRequest request = (RegisterRequest) message;
             handleRegisterRequest(request);

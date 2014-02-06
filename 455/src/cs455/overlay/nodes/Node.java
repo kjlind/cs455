@@ -81,7 +81,7 @@ public abstract class Node {
      * connections with other nodes). It will be stored using its current name
      * as the key.
      */
-    public void addSender(Sender senderToAdd) {
+    public synchronized void addSender(Sender senderToAdd) {
         senders.put(senderToAdd.getName(), senderToAdd);
     }
 
@@ -90,7 +90,7 @@ public abstract class Node {
      * senders, if it exists within the table. Does nothing if the key (name)
      * does not exist.
      */
-    public void removeSender(String senderName) {
+    public synchronized void removeSender(String senderName) {
         senders.remove(senderName);
     }
 
