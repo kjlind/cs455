@@ -6,7 +6,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ RegisterRequestTest.class, MessageFactoryTest.class,
-        DeregisterRequestTest.class, ConnectionInformationTest.class })
+        DeregisterRequestTest.class, ConnectionInformationTest.class,
+        RegisterResponseTest.class })
 public class AllOverlayTests {
 
 }

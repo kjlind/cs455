@@ -58,6 +58,9 @@ public class DeregisterRequest implements Message {
 
         // port field
         port = din.readInt();
+
+        bais.close();
+        din.close();
     }
 
     /**

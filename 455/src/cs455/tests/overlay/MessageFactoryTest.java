@@ -9,11 +9,13 @@ import java.nio.ByteBuffer;
 import org.junit.Before;
 import org.junit.Test;
 
+import cs455.overlay.wireformats.ConnectionInformation;
 import cs455.overlay.wireformats.DeregisterRequest;
 import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegisterRequest;
+import cs455.overlay.wireformats.RegisterResponse;
 
 public class MessageFactoryTest {
 
@@ -44,6 +46,26 @@ public class MessageFactoryTest {
     }
 
     @Test
+    public void testCreateRegisterResponse() {
+        // valid -- register response
+        boolean success = true;
+        String info = "Yay!";
+        try {
+            byte[] marshalledBytes = new RegisterResponse(success, info)
+                .getBytes();
+            Message message = MessageFactory.createMessage(marshalledBytes);
+            assertEquals(message.getType(), Protocol.REGISTER_RESPONSE);
+            RegisterResponse response = (RegisterResponse) message;
+            assertEquals(success, response.getSuccess());
+            assertEquals(info, response.getInfo());
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Unexpected I/O error on getBytes() method of valid"
+                + " RegisterResponse :( (see console output for details)");
+        }
+    }
+
+    @Test
     public void testCreateDeregisterRequest() {
         // valid -- deregister request
         String IPAddress = "denver.cs.colostate.edu";
@@ -60,6 +82,28 @@ public class MessageFactoryTest {
             e.printStackTrace();
             fail("Unexpected I/O error on getBytes() method of valid"
                 + " DeregisterRequest :( (see console output for details)");
+        }
+    }
+
+    @Test
+    public void testCreateConnectionInformation() {
+        // valid -- connection information
+        String IPAddress = "denver.cs.colostate.edu";
+        int port = 5555;
+        int serverPort = 8574;
+        try {
+            byte[] marshalledBytes = new ConnectionInformation(IPAddress, port,
+                serverPort).getBytes();
+            Message message = MessageFactory.createMessage(marshalledBytes);
+            assertEquals(message.getType(), Protocol.CONNECTION_INFORMATION);
+            ConnectionInformation info = (ConnectionInformation) message;
+            assertEquals(info.getHostname(), IPAddress);
+            assertEquals(info.getPort(), port);
+            assertEquals(info.getServerPort(), serverPort);
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Unexpected I/O error on getBytes() method of valid"
+                + " ConnectionInformation :( (see console output for details)");
         }
     }
 

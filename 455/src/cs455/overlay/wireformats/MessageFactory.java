@@ -35,6 +35,8 @@ public class MessageFactory {
         switch (messageType) {
         case Protocol.REGISTER_REQUEST:
             return new RegisterRequest(marshalledBytes);
+        case Protocol.REGISTER_RESPONSE:
+            return new RegisterResponse(marshalledBytes);
         case Protocol.DEREGISTER_REQUEST:
             return new DeregisterRequest(marshalledBytes);
         case Protocol.CONNECTION_INFORMATION:

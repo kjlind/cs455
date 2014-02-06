@@ -68,6 +68,9 @@ public class ConnectionInformation implements Message {
 
         // server port field
         serverPort = din.readInt();
+
+        bais.close();
+        din.close();
     }
 
     /**

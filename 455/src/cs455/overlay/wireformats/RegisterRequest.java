@@ -38,9 +38,9 @@ public class RegisterRequest implements Message {
 
     /**
      * Creates a new RegisterRequest by unmarshalling the given byte array into
-     * the proper fields: type, IPAddress, port, and assignedID. This
-     * constructor should be used on the receiving end of a message in order to
-     * unmarshall the previously marshalled bytes.
+     * the proper fields: type, IPAddress, and port. This constructor should be
+     * used on the receiving end of a message in order to unmarshall the
+     * previously marshalled bytes.
      * 
      * @param marshalledBytes a byte array containing marshalled bytes for a
      * register request; presumably this was created by calling the getBytes()
@@ -69,6 +69,8 @@ public class RegisterRequest implements Message {
         // byte[] assignedIDBytes = new byte[IDBytesLength];
         // din.readFully(assignedIDBytes);
         // assignedID = new String(assignedIDBytes);
+        bais.close();
+        din.close();
     }
 
     /**
