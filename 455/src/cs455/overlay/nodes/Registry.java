@@ -1,6 +1,8 @@
 package cs455.overlay.nodes;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import cs455.overlay.wireformats.Message;
@@ -67,7 +69,16 @@ public class Registry extends Node implements Runnable {
             return (this.getHostName().equals(otherInfo.getHostName()))
                 && (this.getServerPort() == otherInfo.getServerPort());
         }
+
+        @Override
+        public String toString() {
+            return hostName + ":" + serverPort;
+        }
     }
+
+    private static boolean DEBUG = true;
+
+    private List<NodeInfo> registeredNodes;
 
     /**
      * Creates a new Registry which will run its Server on the specified port,
@@ -78,6 +89,7 @@ public class Registry extends Node implements Runnable {
      */
     public Registry(int port) {
         super(port);
+        registeredNodes = new ArrayList<NodeInfo>();
     }
 
     @Override
@@ -105,8 +117,20 @@ public class Registry extends Node implements Runnable {
      */
     private void handleRegisterRequest(RegisterRequest request) {
         NodeInfo info = new NodeInfo(request.getIPAddress(), request.getPort());
-        
-        
+
+        boolean registered = registeredNodes.contains(info);
+
+        if (!registered) {
+            if (DEBUG) {
+                System.out.println("Registry: messaging node at " + info
+                    + " was not registered; registering now");
+            }
+
+            registeredNodes.add(info);
+            // TODO: send a 'success' response
+        } else {
+            // TODO: send a 'fail' response
+        }
     }
 
     @Override
