@@ -16,7 +16,7 @@ import cs455.overlay.nodes.Node;
  * @date Jan 24, 2014
  */
 public class ServerThread extends Thread {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private ServerSocket serverSocket;
     private Node targetedNode;

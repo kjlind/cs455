@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import cs455.overlay.nodes.Node;
+import cs455.overlay.wireformats.ConnectionInformation;
 
 /**
  * A Client forms connections with other nodes; it has some associated 'owner'
@@ -33,7 +34,8 @@ public class Client {
      * Attempts to set up a new connection with a server listening at the given
      * IPAddress on the given port number. If successful, creates and starts a
      * ReceiverThread with the newly connected socket, and creates and returns a
-     * Sender with the new socket.
+     * Sender with the new socket. The name of the new sender will be set to
+     * "IPAddress:port".
      * 
      * @param IPAddress the address of the server to connect to
      * @param port the port number of the server to connect to
@@ -55,6 +57,26 @@ public class Client {
         }
 
         new ReceiverThread(socket, targetedNode).start();
-        return new Sender(socket);
+        Sender sender = new Sender(socket);
+
+        /* set name of sender to hostname and server port of receiving node */
+        String senderName = sender.getReceiverHostAddress() + ":" + port;
+        sender.setName(senderName);
+
+        if (DEBUG) {
+            System.out.println("Client: Set name of newly created sender to "
+                + senderName);
+            System.out.println("Client: Sending connection information");
+        }
+
+        /* send connection information to the receiving node */
+        String localHostAddress = sender.getLocalHostAddress();
+        int localPort = sender.getLocalPort();
+        int localServerPort = targetedNode.getPort();
+        ConnectionInformation info = new ConnectionInformation(
+            localHostAddress, localPort, localServerPort);
+        sender.sendBytes(info.getBytes());
+
+        return sender;
     }
 }

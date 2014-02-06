@@ -1,7 +1,6 @@
 package cs455.overlay.nodes;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
@@ -34,7 +33,7 @@ import cs455.overlay.wireformats.RegisterRequest;
  * @date Jan 22, 2014
  */
 public class MessagingNode extends Node implements Runnable {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private final String registryHost;
     private final int registryPort;
@@ -44,14 +43,6 @@ public class MessagingNode extends Node implements Runnable {
 
         this.registryHost = registryHost;
         this.registryPort = registryPort;
-    }
-
-    /**
-     * @return the host name of the machine on which this MessagingNode resides
-     * @throws UnknownHostException if the DNS lookup of the IP address fails
-     */
-    public String getLocalIPAddress() throws UnknownHostException {
-        return InetAddress.getLocalHost().getHostName();
     }
 
     public String getRegistryHost() {
@@ -159,8 +150,8 @@ public class MessagingNode extends Node implements Runnable {
      * register request
      */
     private void sendRegisterRequest(Sender registrySender) throws IOException {
-        RegisterRequest request = new RegisterRequest(getLocalIPAddress(),
-            getPort());
+        RegisterRequest request = new RegisterRequest(
+            registrySender.getLocalHostAddress(), getPort());
 
         if (DEBUG) {
             System.out.println("Main MN: sending register request to registry");

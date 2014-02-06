@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import cs455.overlay.tcp.Sender;
+import cs455.overlay.wireformats.ConnectionInformation;
 import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
 import cs455.overlay.wireformats.Protocol;
@@ -97,11 +99,22 @@ public class Registry extends Node implements Runnable {
         Message message = MessageFactory.createMessage(messageBytes);
         switch (message.getType()) {
         case Protocol.REGISTER_REQUEST:
-            System.out.println("It's a register request!!1!!");
-            System.out.println(message);
+            if (DEBUG) {
+                System.out.println("\nRegistry: It's a register request!!1!!");
+                System.out.println(message);
+            }
 
             RegisterRequest request = (RegisterRequest) message;
             handleRegisterRequest(request);
+            break;
+        case Protocol.CONNECTION_INFORMATION:
+            if (DEBUG) {
+                System.out.println("\nRegistry: CONNNNNNNECTION info!");
+                System.out.println(message);
+            }
+
+            ConnectionInformation info = (ConnectionInformation) message;
+            handleConnectionInformation(info);
             break;
         default:
             // TODO: better error handling here (just ignore unrecognized types
@@ -130,6 +143,35 @@ public class Registry extends Node implements Runnable {
             // TODO: send a 'success' response
         } else {
             // TODO: send a 'fail' response
+        }
+    }
+
+    /**
+     * If a sender is stored using the key hostname:port (using the values from
+     * info for hostname and port), retrieves and removes the sender, updates
+     * the key to be hostname:serverPort, and then stores this back to the
+     * table. This update is required so that the registry can later properly
+     * identify which sender it should use to send responses to whichever node
+     * initiated a connection and sent this message.
+     */
+    private void handleConnectionInformation(ConnectionInformation info) {
+        String nameToLookFor = info.getHostname() + ":" + info.getPort();
+        Sender senderToUpdate = getSenders().get(nameToLookFor);
+
+        if (DEBUG) {
+            System.out.println("Registry: Looking for " + nameToLookFor);
+        }
+        if (senderToUpdate != null) {
+            getSenders().remove(nameToLookFor);
+            String updatedName = info.getHostname() + ":"
+                + info.getServerPort();
+            senderToUpdate.setName(updatedName);
+            getSenders().put(updatedName, senderToUpdate);
+
+            if (DEBUG) {
+                System.out.println("Registry: found sender with name"
+                    + nameToLookFor + "; updated to name " + updatedName);
+            }
         }
     }
 

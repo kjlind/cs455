@@ -28,15 +28,25 @@ public class Sender {
          * set an initial (presumably unique unless something has broken) name
          * for this sender so that it may be hashed properly
          */
-        String initialName = getReceiverHostName() + ":" + getReceiverPort();
+        String initialName = getReceiverHostAddress() + ":" + getReceiverPort();
+        // System.out.println("Sender ctor, initial name: " + initialName);
+
         setName(initialName);
     }
 
     /**
      * @return the host name of the node to which this sender is connected
      */
-    public String getReceiverHostName() {
-        return socket.getInetAddress().getHostName();
+    public String getReceiverHostAddress() {
+        return socket.getInetAddress().getHostAddress();
+    }
+
+    /**
+     * @return string representation of the address to which the socket in this
+     * sender is bound
+     */
+    public String getLocalHostAddress() {
+        return socket.getLocalAddress().getHostAddress();
     }
 
     /**
@@ -44,6 +54,13 @@ public class Sender {
      */
     public int getReceiverPort() {
         return socket.getPort();
+    }
+
+    /**
+     * @return the local port number to which the socket in this sender is bound
+     */
+    public int getLocalPort() {
+        return socket.getLocalPort();
     }
 
     /**

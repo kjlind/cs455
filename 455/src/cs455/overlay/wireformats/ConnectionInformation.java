@@ -130,4 +130,13 @@ public class ConnectionInformation implements Message {
 
         return marshalledBytes;
     }
+
+    @Override
+    public String toString() {
+        String string = "Connection Information\n";
+        string += "hostname: " + hostname + "\n";
+        string += "port: " + port + "\n";
+        string += "serverPort: " + serverPort;
+        return string;
+    }
 }

@@ -17,7 +17,7 @@ import cs455.overlay.tcp.ServerThread;
  * @date Jan 24, 2014
  */
 public abstract class Node {
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     private int portnum;
 
@@ -59,6 +59,14 @@ public abstract class Node {
     public int getPort() {
         return portnum;
     }
+
+    /**
+     * @return the host name of the machine on which this Node resides
+     * @throws UnknownHostException if the DNS lookup of the IP address fails
+     */
+    // public String getLocalHostName() throws UnknownHostException {
+    // return InetAddress.getLocalHost().getHostAddress();
+    // }
 
     /**
      * @return this node's table of senders; it will contain one Sender for each
