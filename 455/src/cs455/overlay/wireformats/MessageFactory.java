@@ -37,6 +37,8 @@ public class MessageFactory {
             return new RegisterRequest(marshalledBytes);
         case Protocol.DEREGISTER_REQUEST:
             return new DeregisterRequest(marshalledBytes);
+        case Protocol.CONNECTION_INFORMATION:
+            return new ConnectionInformation(marshalledBytes);
         default:
             throw new IOException("Unrecognized message type");
         }

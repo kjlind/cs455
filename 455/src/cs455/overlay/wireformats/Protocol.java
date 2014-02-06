@@ -21,4 +21,5 @@ public class Protocol {
     public static final int TASK_COMPLETE = 9;
     public static final int PULL_TRAFFIC_SUMMARY = 10;
     public static final int TRAFFIC_SUMMARY = 11;
+    public static final int CONNECTION_INFORMATION = 12;
 }
