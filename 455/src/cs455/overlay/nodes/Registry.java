@@ -7,6 +7,8 @@ import java.util.Scanner;
 
 import cs455.overlay.tcp.Sender;
 import cs455.overlay.wireformats.ConnectionInformation;
+import cs455.overlay.wireformats.DeregisterRequest;
+import cs455.overlay.wireformats.DeregisterResponse;
 import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
 import cs455.overlay.wireformats.Protocol;
@@ -110,6 +112,18 @@ public class Registry extends Node implements Runnable {
             RegisterRequest request = (RegisterRequest) message;
             handleRegisterRequest(request);
             break;
+        case Protocol.DEREGISTER_REQUEST:
+            // TODO: verify somewhere that IP in message matches sender...
+
+            if (DEBUG) {
+                System.out.println("\nRegistry: Deregister request :( :( :(");
+                System.out.println(message);
+            }
+
+            DeregisterRequest derequest = (DeregisterRequest) message;
+            handleDeregisterRequest(derequest);
+
+            break;
         case Protocol.CONNECTION_INFORMATION:
             if (DEBUG) {
                 System.out.println("\nRegistry: CONNNNNNNECTION info!");
@@ -161,6 +175,53 @@ public class Registry extends Node implements Runnable {
         // TODO: handle nullness
 
         RegisterResponse response = new RegisterResponse(success,
+            responseString);
+        try {
+            sender.sendBytes(response.getBytes());
+        } catch (IOException e) {
+            System.out.println("Unable to send response to node at " + info
+                + "; removing from registry");
+            e.printStackTrace();
+            registeredNodes.remove(info);
+        }
+    }
+
+    /**
+     * If the messaging node at the IP address and port listed is currently
+     * registered, deregisters the node. Either way, sends a deregister response
+     * to the messaging node indicating either success or failure.
+     */
+    private void handleDeregisterRequest(DeregisterRequest derequest) {
+        NodeInfo info = new NodeInfo(derequest.getIPAddress(),
+            derequest.getPort());
+
+        boolean registered = registeredNodes.contains(info);
+
+        boolean success;
+        String responseString;
+        if (registered) {
+            if (DEBUG) {
+                System.out.println("Registry: messaging node at " + info
+                    + " was registered; deregistering now");
+            }
+
+            registeredNodes.remove(info);
+
+            success = true;
+            responseString = "Deregistration successful; there are now "
+                + registeredNodes.size()
+                + " MessagingNodes currently registered";
+        } else {
+            success = false;
+            responseString = "Deregistration failed; a node at " + info
+                + " was not registered";
+        }
+
+        /* send response message */
+        Sender sender = getSenders().get(info.toString());
+        // TODO: handle nullness
+
+        DeregisterResponse response = new DeregisterResponse(success,
             responseString);
         try {
             sender.sendBytes(response.getBytes());

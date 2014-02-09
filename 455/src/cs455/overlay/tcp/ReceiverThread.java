@@ -5,6 +5,7 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 
 import cs455.overlay.nodes.Node;
 
@@ -63,10 +64,15 @@ public class ReceiverThread extends Thread {
                 // message? (so that registry esp. can know who the message was
                 // from and react accordingly)
                 targetedNode.handleMessage(data);
+            } catch (SocketException e) {
+                System.err.println("Socket exception while trying to read"
+                    + " data:");
+                e.printStackTrace();
+                return;
             } catch (EOFException e) {
                 System.err.println("EOF exception while trying to read data: ");
                 e.printStackTrace();
-                break;
+                return;
             } catch (IOException e) {
                 System.err.println("I/O error while trying to read data: ");
                 e.printStackTrace();

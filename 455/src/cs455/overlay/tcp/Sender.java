@@ -92,4 +92,15 @@ public class Sender {
         dout.write(data);
         dout.flush();
     }
+
+    /**
+     * Closes the socket underlying this sender; cannot be reopened. The
+     * receiver listening on this socket will catch a SocketException.
+     * 
+     * @throws IOException if an I/O error occurs when trying to close the
+     * socket
+     */
+    public void close() throws IOException {
+        socket.close();
+    }
 }
