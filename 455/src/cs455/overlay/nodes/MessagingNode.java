@@ -5,12 +5,14 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.Scanner;
 
+import cs455.overlay.dijkstra.Dijkstra;
 import cs455.overlay.tcp.Client;
 import cs455.overlay.tcp.Sender;
 import cs455.overlay.util.NodeInfo;
 import cs455.overlay.wireformats.ConnectionInformation;
 import cs455.overlay.wireformats.DeregisterRequest;
 import cs455.overlay.wireformats.DeregisterResponse;
+import cs455.overlay.wireformats.LinkWeights;
 import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
 import cs455.overlay.wireformats.MessagingNodesList;
@@ -48,6 +50,8 @@ public class MessagingNode extends Node implements Runnable {
     private final int registryPort;
 
     private Sender registrySender;
+
+    private Dijkstra pathCalculator;
 
     public MessagingNode(String registryHost, int registryPort) {
         super();
@@ -99,6 +103,9 @@ public class MessagingNode extends Node implements Runnable {
                 System.out.println("\nMain MN: link weights yeah!");
                 System.out.println(message);
             }
+
+            LinkWeights weights = (LinkWeights) message;
+            handleLinkWeights(weights);
             break;
         case Protocol.CONNECTION_INFORMATION:
             if (DEBUG) {
@@ -148,6 +155,26 @@ public class MessagingNode extends Node implements Runnable {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * Creates a new instance of Dijkstra and passes it the link weights
+     * contained in the message; also sets the source to be this node.
+     */
+    private void handleLinkWeights(LinkWeights weights) {
+        pathCalculator = new Dijkstra(weights.getLinks());
+
+        /* a cheap hack way to get the proper IP for this node */
+        String thisIP = registrySender.getLocalHostAddress();
+
+        NodeInfo thisNode = new NodeInfo(thisIP, getPort());
+
+        if (DEBUG) {
+            System.out.println("Main MN: setting source of path calculator to"
+                + " this node: " + thisNode);
+        }
+
+        pathCalculator.setSourceNode(thisNode);
     }
 
     /**
@@ -294,6 +321,9 @@ public class MessagingNode extends Node implements Runnable {
 
         while (true) {
             switch (command) {
+            case MessagingNodeCommand.LIST_PATHS:
+                listPaths();
+                break;
             case MessagingNodeCommand.LIST_PEERS:
                 listPeers();
                 break;
@@ -312,6 +342,14 @@ public class MessagingNode extends Node implements Runnable {
             }
             command = kbd.next();
         }
+    }
+
+    /**
+     * Lists the shortest paths from here to every other messaging node in the
+     * overlay.
+     */
+    private void listPaths() {
+        System.out.println(pathCalculator.getAllPathStrings());
     }
 
     /**

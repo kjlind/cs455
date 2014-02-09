@@ -19,6 +19,8 @@ import cs455.overlay.util.NodeInfo;
  * @date Feb 9, 2014
  */
 public class Dijkstra {
+    private NodeInfo sourceNode;
+
     private Graph overlay;
     private ShortestPath pathCalculator;
 
@@ -58,6 +60,7 @@ public class Dijkstra {
      * future shortest paths calculated will begin from this source.
      */
     public void setSourceNode(NodeInfo sourceNode) {
+        this.sourceNode = sourceNode;
         Vertex sourceVertex = new Vertex(sourceNode.toString());
         pathCalculator.execute(sourceVertex);
     }
@@ -94,6 +97,10 @@ public class Dijkstra {
      * path as well as the weights of the links between the nodes
      */
     public String getPathStringTo(NodeInfo destinationNode) {
+        if (destinationNode.equals(sourceNode)) {
+            return sourceNode.toString();
+        }
+
         String pathStr = "";
 
         Vertex destinationVertex = new Vertex(destinationNode.toString());
@@ -119,5 +126,42 @@ public class Dijkstra {
         }
 
         return pathStr;
+    }
+
+    /**
+     * @return a string which contains the shortest path from the source to
+     * every other node in the overlay, each on its own line; each path will
+     * contain the nodes along the way as well as the link weights between them
+     */
+    public String getAllPathStrings() {
+        String allPaths = "";
+
+        Iterator<Vertex> vertexIter = overlay.getVertices().iterator();
+        while (vertexIter.hasNext()) {
+            Vertex vertex = vertexIter.next();
+            String nodeName = vertex.getCity();
+
+            /* no need to include shortest path from here to here */
+            if (!nodeName.equals(sourceNode.toString())) {
+                /* split the name into IPAddress and server port fields */
+                Scanner nameScanner = new Scanner(nodeName);
+                nameScanner.useDelimiter(":");
+                String IPAddress = nameScanner.next();
+                int serverPort = nameScanner.nextInt();
+                nameScanner.close();
+
+                NodeInfo node = new NodeInfo(IPAddress, serverPort);
+                allPaths += getPathStringTo(node);
+
+                /* this is why I used an iterator instead of a for loop above */
+                if (vertexIter.hasNext()) {
+                    allPaths += "\n";
+                }
+                // TODO: fix extra blank line output when source node is in
+                // middle of list
+            }
+        }
+
+        return allPaths;
     }
 }
