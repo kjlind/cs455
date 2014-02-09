@@ -13,6 +13,7 @@ import cs455.overlay.util.NodeInfo;
 import cs455.overlay.wireformats.ConnectionInformation;
 import cs455.overlay.wireformats.DeregisterRequest;
 import cs455.overlay.wireformats.DeregisterResponse;
+import cs455.overlay.wireformats.LinkWeights;
 import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
 import cs455.overlay.wireformats.MessagingNodesList;
@@ -266,6 +267,9 @@ public class Registry extends Node implements Runnable {
                 int numConnections = kbd.nextInt();
                 setupOverlay(numConnections);
                 break;
+            case RegistryCommand.SEND_WEIGHTS:
+                sendWeights();
+                break;
             default:
                 System.out.println("Unrecognized command!");
             }
@@ -320,7 +324,7 @@ public class Registry extends Node implements Runnable {
             /* generate weights and add the new links to the list of links */
             Random rand = new Random();
             for (NodeInfo peer : peers) {
-                int weight = rand.nextInt(10)+1;
+                int weight = rand.nextInt(10) + 1;
                 links.add(new LinkInfo(nextNode, peer, weight));
             }
 
@@ -334,6 +338,31 @@ public class Registry extends Node implements Runnable {
                 sender.sendBytes(list.getBytes());
             } catch (IOException e) {
                 // TODO better handling here? try again? ...
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Attempts to send a link weights message to all currently registered nodes
+     * indicating the current set up of links. If any attempt fails, prints an
+     * error message and gives up on that attempt.
+     */
+    private void sendWeights() {
+        LinkInfo[] linkArray = new LinkInfo[links.size()];
+        for (int i = 0; i < linkArray.length; ++i) {
+            linkArray[i] = links.get(i);
+        }
+
+        LinkWeights weightsMessage = new LinkWeights(linkArray);
+        for (NodeInfo nextNode : registeredNodes) {
+            Sender sender = getSenders().get(nextNode.toString());
+            // TODO: handle nullll!
+            try {
+                sender.sendBytes(weightsMessage.getBytes());
+            } catch (IOException e) {
+                System.out.println("Error sending link weights message to "
+                    + nextNode);
                 e.printStackTrace();
             }
         }

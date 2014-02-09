@@ -43,6 +43,8 @@ public class MessageFactory {
             return new DeregisterResponse(marshalledBytes);
         case Protocol.MESSAGING_NODES_LIST:
             return new MessagingNodesList(marshalledBytes);
+        case Protocol.LINK_WEIGHTS:
+            return new LinkWeights(marshalledBytes);
         case Protocol.CONNECTION_INFORMATION:
             return new ConnectionInformation(marshalledBytes);
         default:

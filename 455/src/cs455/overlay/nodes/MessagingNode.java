@@ -94,6 +94,12 @@ public class MessagingNode extends Node implements Runnable {
             MessagingNodesList list = (MessagingNodesList) message;
             handleMessagingNodesList(list);
             break;
+        case Protocol.LINK_WEIGHTS:
+            if (DEBUG) {
+                System.out.println("\nMain MN: link weights yeah!");
+                System.out.println(message);
+            }
+            break;
         case Protocol.CONNECTION_INFORMATION:
             if (DEBUG) {
                 System.out.println("\nMain MN: CONNNNNNNECTION info!");
