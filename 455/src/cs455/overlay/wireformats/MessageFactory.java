@@ -41,6 +41,8 @@ public class MessageFactory {
             return new DeregisterRequest(marshalledBytes);
         case Protocol.DEREGISTER_RESPONSE:
             return new DeregisterResponse(marshalledBytes);
+        case Protocol.MESSAGING_NODES_LIST:
+            return new MessagingNodesList(marshalledBytes);
         case Protocol.CONNECTION_INFORMATION:
             return new ConnectionInformation(marshalledBytes);
         default:

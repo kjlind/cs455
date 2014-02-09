@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import cs455.overlay.tcp.Sender;
+import cs455.overlay.util.NodeInfo;
 import cs455.overlay.wireformats.ConnectionInformation;
 import cs455.overlay.wireformats.DeregisterRequest;
 import cs455.overlay.wireformats.DeregisterResponse;
@@ -35,52 +36,6 @@ import cs455.overlay.wireformats.RegisterResponse;
  * @date Jan 22, 2014
  */
 public class Registry extends Node implements Runnable {
-    /**
-     * NodeInfo stores the host name and port on which the server is listening
-     * for connections of a registered messaging node.
-     * 
-     * @author Kira Lindburg
-     * @date Feb 5, 2014
-     */
-    private class NodeInfo {
-        private String hostName;
-        private int serverPort;
-
-        public NodeInfo(String hostName, int serverPort) {
-            this.hostName = hostName;
-            this.serverPort = serverPort;
-        }
-
-        public String getHostName() {
-            return hostName;
-        }
-
-        public int getServerPort() {
-            return serverPort;
-        }
-
-        /**
-         * @return true if the other object is an instance of NodeInfo, and the
-         * host name and server port of other equal the host name and server
-         * port, respectively, of this node info object
-         */
-        @Override
-        public boolean equals(Object other) {
-            if (!(other instanceof NodeInfo)) {
-                return false;
-            }
-
-            NodeInfo otherInfo = (NodeInfo) other;
-            return (this.getHostName().equals(otherInfo.getHostName()))
-                && (this.getServerPort() == otherInfo.getServerPort());
-        }
-
-        @Override
-        public String toString() {
-            return hostName + ":" + serverPort;
-        }
-    }
-
     private static boolean DEBUG = true;
 
     private List<NodeInfo> registeredNodes;

@@ -1,5 +1,6 @@
 package cs455.tests.overlay;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -9,10 +10,12 @@ import java.nio.ByteBuffer;
 import org.junit.Before;
 import org.junit.Test;
 
+import cs455.overlay.util.NodeInfo;
 import cs455.overlay.wireformats.ConnectionInformation;
 import cs455.overlay.wireformats.DeregisterRequest;
 import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
+import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegisterRequest;
 import cs455.overlay.wireformats.RegisterResponse;
@@ -82,6 +85,26 @@ public class MessageFactoryTest {
             e.printStackTrace();
             fail("Unexpected I/O error on getBytes() method of valid"
                 + " DeregisterRequest :( (see console output for details)");
+        }
+    }
+
+    @Test
+    public void testCreateMessagingNodesList() {
+        // valid
+        NodeInfo[] nod = new NodeInfo[3];
+        nod[0] = new NodeInfo("denver", 64372);
+        nod[1] = new NodeInfo("kitaro", 64374);
+        nod[2] = new NodeInfo("bierstadt", 64342);
+        try {
+            byte[] marshalledBytes = new MessagingNodesList(nod).getBytes();
+            Message message = MessageFactory.createMessage(marshalledBytes);
+            assertEquals(Protocol.MESSAGING_NODES_LIST, message.getType());
+            MessagingNodesList list = (MessagingNodesList) message;
+            assertArrayEquals(nod, list.getMessagingNodes());
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Unexpected I/O error on getBytes() method of valid"
+                + " MessagingNodesList :( (see console output for details)");
         }
     }
 
