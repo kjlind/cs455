@@ -2,15 +2,17 @@ package cs455.overlay.nodes;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.Enumeration;
 import java.util.Scanner;
 
 import cs455.overlay.tcp.Client;
 import cs455.overlay.tcp.Sender;
+import cs455.overlay.util.NodeInfo;
+import cs455.overlay.wireformats.ConnectionInformation;
 import cs455.overlay.wireformats.DeregisterRequest;
 import cs455.overlay.wireformats.DeregisterResponse;
 import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
+import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegisterRequest;
 
@@ -83,10 +85,26 @@ public class MessagingNode extends Node implements Runnable {
             DeregisterResponse response = (DeregisterResponse) message;
             handleDeregisterResponse(response);
             break;
+        case Protocol.MESSAGING_NODES_LIST:
+            if (DEBUG) {
+                System.out.println("\nMain MN: messaging nodes list yeyey");
+                System.out.println(message);
+            }
+            MessagingNodesList list = (MessagingNodesList) message;
+            handleMessagingNodesList(list);
+            break;
+        case Protocol.CONNECTION_INFORMATION:
+            if (DEBUG) {
+                System.out.println("\nMain MN: CONNNNNNNECTION info!");
+                System.out.println(message);
+            }
+
+            ConnectionInformation info = (ConnectionInformation) message;
+            handleConnectionInformation(info);
+            break;
         default:
-            // TODO: better error handling here (just ignore unrecognized types
-            // maybe?)
-            throw new IOException("Bad message type!");
+            System.out.println("Received an unrecognized message type;"
+                + " the message contents were " + message);
         }
     }
 
@@ -100,6 +118,57 @@ public class MessagingNode extends Node implements Runnable {
             cleanUpAndExit();
         } else {
             System.out.println(response.getInfo());
+        }
+    }
+
+    /**
+     * Attempts to connect to each node which is listed in the messaging nodes
+     * list at corresponding server port provided; if any given connection
+     * attempt fails, prints an error message and gives up on that attempt.
+     */
+    private void handleMessagingNodesList(MessagingNodesList list) {
+        NodeInfo[] peers = list.getMessagingNodes();
+        for (NodeInfo nextNode : peers) {
+            String IPAddress = nextNode.getHostName();
+            int port = nextNode.getServerPort();
+            try {
+                new Client(this).connectTo(IPAddress, port);
+            } catch (UnknownHostException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * If a sender is stored using the key hostname:port (using the values from
+     * info for hostname and port), retrieves and removes the sender, updates
+     * the key to be hostname:serverPort, and then stores this back to the
+     * table. This update is required so that the messaging node can later
+     * properly identify which sender it should use to send responses to
+     * whichever node initiated a connection and sent this message.
+     */
+    private void handleConnectionInformation(ConnectionInformation info) {
+        String nameToLookFor = info.getHostname() + ":" + info.getPort();
+        Sender senderToUpdate = getSenders().get(nameToLookFor);
+
+        if (DEBUG) {
+            System.out.println("Main MN: Looking for " + nameToLookFor);
+        }
+        if (senderToUpdate != null) {
+            getSenders().remove(nameToLookFor);
+            String updatedName = info.getHostname() + ":"
+                + info.getServerPort();
+            senderToUpdate.setName(updatedName);
+            getSenders().put(updatedName, senderToUpdate);
+
+            if (DEBUG) {
+                System.out.println("Main MN: found sender with name "
+                    + nameToLookFor + "; updated to name " + updatedName);
+            }
         }
     }
 
@@ -126,7 +195,7 @@ public class MessagingNode extends Node implements Runnable {
 
         /* connect to Registry */
         try {
-            registrySender = connectToRegistry();
+            connectToRegistry();
         } catch (UnknownHostException e) {
             System.out.println("Unable to connect to registry at the provided"
                 + " hostname: " + registryHost + " and port number: "
@@ -179,12 +248,12 @@ public class MessagingNode extends Node implements Runnable {
      * @throws UnknownHostException if the registry cannot be found at this
      * node's initialized registry name and registry port
      */
-    private Sender connectToRegistry() throws UnknownHostException, IOException {
+    private void connectToRegistry() throws UnknownHostException, IOException {
         if (DEBUG) {
             System.out.println("Main MN: connecting to registry");
         }
 
-        return new Client(this).connectTo(registryHost, registryPort);
+        registrySender = new Client(this).connectTo(registryHost, registryPort);
     }
 
     /**

@@ -35,12 +35,11 @@ public class Client {
      * IPAddress on the given port number. If successful, creates and starts a
      * ReceiverThread with the newly connected socket, and creates and returns a
      * Sender with the new socket. The name of the new sender will be set to
-     * "IPAddress:port".
+     * "IPAddress:port". Adds the newly created sender to the targeted node.
      * 
      * @param IPAddress the address of the server to connect to
      * @param port the port number of the server to connect to
-     * @return a Sender which can be used to send messages over the new
-     * connection
+     * @return the newly created sender, for convenience
      * @throws IOException if an I/O error occurs while trying to connect
      * @throws UnknownHostException if the host cannot be determined
      */
@@ -76,6 +75,8 @@ public class Client {
         ConnectionInformation info = new ConnectionInformation(
             localHostAddress, localPort, localServerPort);
         sender.sendBytes(info.getBytes());
+
+        targetedNode.addSender(sender);
 
         return sender;
     }

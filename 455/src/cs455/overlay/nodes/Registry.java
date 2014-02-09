@@ -2,6 +2,7 @@ package cs455.overlay.nodes;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -12,6 +13,7 @@ import cs455.overlay.wireformats.DeregisterRequest;
 import cs455.overlay.wireformats.DeregisterResponse;
 import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
+import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegisterRequest;
 import cs455.overlay.wireformats.RegisterResponse;
@@ -37,6 +39,7 @@ import cs455.overlay.wireformats.RegisterResponse;
  */
 public class Registry extends Node implements Runnable {
     private static boolean DEBUG = true;
+    // private static final int DEFAULT_NUM_CONNECTIONS = 4;
 
     private List<NodeInfo> registeredNodes;
 
@@ -211,7 +214,7 @@ public class Registry extends Node implements Runnable {
             getSenders().put(updatedName, senderToUpdate);
 
             if (DEBUG) {
-                System.out.println("Registry: found sender with name"
+                System.out.println("Registry: found sender with name "
                     + nameToLookFor + "; updated to name " + updatedName);
             }
         }
@@ -252,6 +255,10 @@ public class Registry extends Node implements Runnable {
             case RegistryCommand.LIST_NODES:
                 listRegisteredNodes();
                 break;
+            case RegistryCommand.SETUP_OVERLAY:
+                int numConnections = kbd.nextInt();
+                setupOverlay(numConnections);
+                break;
             default:
                 System.out.println("Unrecognized command!");
             }
@@ -266,8 +273,44 @@ public class Registry extends Node implements Runnable {
      * nodes.
      */
     private void listRegisteredNodes() {
-        for(NodeInfo nextNode : registeredNodes){
+        for (NodeInfo nextNode : registeredNodes) {
             System.out.println(nextNode);
+        }
+    }
+
+    /**
+     * Helper method for handleCommandLine(); constructs a messaging overlay and
+     * sends the appropriate messages to the nodes.
+     */
+    private void setupOverlay(int numConnections) {
+        // TODO: ignoring the number of connections for now and assuming four
+        // (and ten nodes) for the purposes of HW1
+        for (int i = 0; i < registeredNodes.size(); ++i) {
+            NodeInfo nextNode = registeredNodes.get(i);
+            NodeInfo[] peers = new NodeInfo[2];
+
+            int peer1Index = (i + 1) % registeredNodes.size();
+            int peer2Index = (i + 2) % registeredNodes.size();
+
+            peers[0] = registeredNodes.get(peer1Index);
+            peers[1] = registeredNodes.get(peer2Index);
+
+            if (DEBUG) {
+                System.out.println("Registry: instructing " + nextNode
+                    + " to connect to " + Arrays.toString(peers));
+            }
+
+            MessagingNodesList list = new MessagingNodesList(peers);
+
+            Sender sender = getSenders().get(nextNode.toString());
+            // TODO: handle null probably?
+
+            try {
+                sender.sendBytes(list.getBytes());
+            } catch (IOException e) {
+                // TODO better handling here? try again? ...
+                e.printStackTrace();
+            }
         }
     }
 

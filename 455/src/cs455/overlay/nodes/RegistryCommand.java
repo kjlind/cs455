@@ -12,5 +12,6 @@ package cs455.overlay.nodes;
  */
 public class RegistryCommand {
     public static final String LIST_NODES = "list-messaging-nodes";
+    public static final String SETUP_OVERLAY = "setup-overlay";
     public static final String EXIT = "exit";
 }
