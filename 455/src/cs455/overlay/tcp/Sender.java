@@ -103,4 +103,9 @@ public class Sender {
     public void close() throws IOException {
         socket.close();
     }
+    
+    @Override
+    public String toString(){
+        return name;
+    }
 }

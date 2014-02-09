@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 import cs455.overlay.tcp.Sender;
+import cs455.overlay.util.LinkInfo;
 import cs455.overlay.util.NodeInfo;
 import cs455.overlay.wireformats.ConnectionInformation;
 import cs455.overlay.wireformats.DeregisterRequest;
@@ -42,6 +44,7 @@ public class Registry extends Node implements Runnable {
     // private static final int DEFAULT_NUM_CONNECTIONS = 4;
 
     private List<NodeInfo> registeredNodes;
+    private List<LinkInfo> links;
 
     /**
      * Creates a new Registry which will run its Server on the specified port,
@@ -53,6 +56,7 @@ public class Registry extends Node implements Runnable {
     public Registry(int port) {
         super(port);
         registeredNodes = new ArrayList<NodeInfo>();
+        links = new ArrayList<LinkInfo>();
     }
 
     @Override
@@ -255,6 +259,9 @@ public class Registry extends Node implements Runnable {
             case RegistryCommand.LIST_NODES:
                 listRegisteredNodes();
                 break;
+            case RegistryCommand.LIST_WEIGHTS:
+                listLinks();
+                break;
             case RegistryCommand.SETUP_OVERLAY:
                 int numConnections = kbd.nextInt();
                 setupOverlay(numConnections);
@@ -279,6 +286,15 @@ public class Registry extends Node implements Runnable {
     }
 
     /**
+     * Prints out info for all current links in the overlay.
+     */
+    private void listLinks() {
+        for (LinkInfo nextLink : links) {
+            System.out.println(nextLink);
+        }
+    }
+
+    /**
      * Helper method for handleCommandLine(); constructs a messaging overlay and
      * sends the appropriate messages to the nodes.
      */
@@ -286,6 +302,7 @@ public class Registry extends Node implements Runnable {
         // TODO: ignoring the number of connections for now and assuming four
         // (and ten nodes) for the purposes of HW1
         for (int i = 0; i < registeredNodes.size(); ++i) {
+            /* choose the new links */
             NodeInfo nextNode = registeredNodes.get(i);
             NodeInfo[] peers = new NodeInfo[2];
 
@@ -300,6 +317,14 @@ public class Registry extends Node implements Runnable {
                     + " to connect to " + Arrays.toString(peers));
             }
 
+            /* generate weights and add the new links to the list of links */
+            Random rand = new Random();
+            for (NodeInfo peer : peers) {
+                int weight = rand.nextInt(10)+1;
+                links.add(new LinkInfo(nextNode, peer, weight));
+            }
+
+            /* send the messaging nodes list to the current node */
             MessagingNodesList list = new MessagingNodesList(peers);
 
             Sender sender = getSenders().get(nextNode.toString());

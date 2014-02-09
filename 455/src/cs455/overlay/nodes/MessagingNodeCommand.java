@@ -9,5 +9,6 @@ package cs455.overlay.nodes;
  * @date Feb 8, 2014
  */
 public class MessagingNodeCommand {
+    public static final String LIST_PEERS = "list-peers";
     public static final String EXIT = "exit-overlay";
 }

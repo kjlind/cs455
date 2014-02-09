@@ -56,8 +56,8 @@ public class ServerThread extends Thread {
                 }
 
                 Socket socket = serverSocket.accept();
-                new ReceiverThread(socket, targetedNode).start();
                 targetedNode.addSender(new Sender(socket));
+                new ReceiverThread(socket, targetedNode).start();
 
                 if (DEBUG) {
                     System.out.println("Server: Successfully accepted incoming"

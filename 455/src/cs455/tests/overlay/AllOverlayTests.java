@@ -8,7 +8,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ RegisterRequestTest.class, MessageFactoryTest.class,
         DeregisterRequestTest.class, ConnectionInformationTest.class,
         RegisterResponseTest.class, NodeInfoTest.class,
-        MessagingNodesListTest.class })
+        MessagingNodesListTest.class, LinkInfoTest.class })
 public class AllOverlayTests {
 
 }

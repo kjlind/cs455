@@ -2,6 +2,7 @@ package cs455.overlay.nodes;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.Scanner;
 
 import cs455.overlay.tcp.Client;
@@ -287,6 +288,9 @@ public class MessagingNode extends Node implements Runnable {
 
         while (true) {
             switch (command) {
+            case MessagingNodeCommand.LIST_PEERS:
+                listPeers();
+                break;
             case MessagingNodeCommand.EXIT:
                 try {
                     sendDeregisterRequest();
@@ -305,8 +309,24 @@ public class MessagingNode extends Node implements Runnable {
     }
 
     /**
-     * Helper method for run. Sends a deregister request from the given node,
-     * and handles any clean up needed.
+     * Prints out information about every sender this messaging node is
+     * currently maintaining.
+     */
+    private void listPeers() {
+        Enumeration<Sender> senderEnum = getSenders().elements();
+
+        while (senderEnum.hasMoreElements()) {
+            Sender nextSender = senderEnum.nextElement();
+            if (nextSender.equals(registrySender)) {
+                System.out.print("(Registry) ");
+            }
+            System.out.println(nextSender);
+        }
+    }
+
+    /**
+     * Sends a deregister request from the given node, and handles any clean up
+     * needed.
      * 
      * @throws IOException if an I/O error occurs when trying to send the
      * deregister request

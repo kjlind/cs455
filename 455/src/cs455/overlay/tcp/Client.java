@@ -55,8 +55,8 @@ public class Client {
             System.out.println("Client: Successfully connected");
         }
 
-        new ReceiverThread(socket, targetedNode).start();
         Sender sender = new Sender(socket);
+        new ReceiverThread(socket, targetedNode).start();
 
         /* set name of sender to hostname and server port of receiving node */
         String senderName = sender.getReceiverHostAddress() + ":" + port;

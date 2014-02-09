@@ -10,7 +10,7 @@ import java.io.IOException;
 
 /**
  * NodeInfo stores the host name and port on which the server is listening for
- * connections of a registered messaging node.
+ * connections of a given messaging node.
  * 
  * @author Kira Lindburg
  * @date Feb 5, 2014
