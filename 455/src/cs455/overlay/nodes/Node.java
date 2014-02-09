@@ -1,6 +1,7 @@
 package cs455.overlay.nodes;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 import cs455.overlay.tcp.Sender;
@@ -92,6 +93,25 @@ public abstract class Node {
      */
     public synchronized void removeSender(String senderName) {
         senders.remove(senderName);
+    }
+
+    /**
+     * Closes all senders and exits.
+     */
+    protected void cleanUpAndExit() {
+        Enumeration<Sender> senderEnum = getSenders().elements();
+
+        while (senderEnum.hasMoreElements()) {
+            Sender nextSender = senderEnum.nextElement();
+            try {
+                nextSender.close();
+            } catch (IOException e) {
+                // TODO: better error output here?
+                e.printStackTrace();
+            }
+        }
+
+        System.exit(0);
     }
 
     /**

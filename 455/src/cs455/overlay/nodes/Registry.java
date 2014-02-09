@@ -279,8 +279,7 @@ public class Registry extends Node implements Runnable {
         handleCommandLine();
 
         /* clean up */
-        cleanUp();
-        // TODO: nicer exit?
+        cleanUpAndExit();
     }
 
     /**
@@ -292,9 +291,15 @@ public class Registry extends Node implements Runnable {
         Scanner kbd = new Scanner(System.in);
         System.out.println("Waiting for a command: ");
         String command = kbd.next();
-        while (!command.equals("exit")) {
-            // do something here
-            System.out.println("You said: " + command); // purely a placeholder
+
+        while (!command.equals(RegistryCommand.EXIT)) {
+            switch (command) {
+            case RegistryCommand.LIST_NODES:
+                listRegisteredNodes();
+                break;
+            default:
+                System.out.println("Unrecognized command!");
+            }
             command = kbd.next();
         }
 
@@ -302,9 +307,13 @@ public class Registry extends Node implements Runnable {
     }
 
     /**
-     * Handles any clean up necessary when the Registry exits.
+     * Helper method for handleCommandLine(); prints out info for all registered
+     * nodes.
      */
-    private void cleanUp() {
+    private void listRegisteredNodes() {
+        for(NodeInfo nextNode : registeredNodes){
+            System.out.println(nextNode);
+        }
     }
 
     public static void main(String args[]) {

@@ -104,25 +104,6 @@ public class MessagingNode extends Node implements Runnable {
     }
 
     /**
-     * Closes all senders and exits.
-     */
-    private void cleanUpAndExit() {
-        Enumeration<Sender> senderEnum = getSenders().elements();
-
-        while (senderEnum.hasMoreElements()) {
-            Sender nextSender = senderEnum.nextElement();
-            try {
-                nextSender.close();
-            } catch (IOException e) {
-                // TODO: better error output here?
-                e.printStackTrace();
-            }
-        }
-
-        System.exit(0);
-    }
-
-    /**
      * Sets up a server thread to listen for incoming connections, connects to
      * and registers with the registry at this messaging node's values for
      * registry host and registry port, then waits for and handles any command
@@ -234,9 +215,10 @@ public class MessagingNode extends Node implements Runnable {
         Scanner kbd = new Scanner(System.in);
         System.out.println("Waiting for a command: ");
         String command = kbd.next();
+
         while (true) {
-            // do something here
-            if (command.equals("exit")) {
+            switch (command) {
+            case MessagingNodeCommand.EXIT:
                 try {
                     sendDeregisterRequest();
                 } catch (IOException e) {
@@ -245,9 +227,10 @@ public class MessagingNode extends Node implements Runnable {
                     System.out.println("Details:");
                     e.printStackTrace();
                 }
+                break;
+            default:
+                System.out.println("Unrecognized command!");
             }
-
-            System.out.println("You said: " + command); // purely a placeholder
             command = kbd.next();
         }
     }
