@@ -113,4 +113,11 @@ public class DeregisterRequest implements Message {
         return marshalledBytes;
     }
 
+    @Override
+    public String toString() {
+        String string = "Deregister Request\n";
+        string += "IPAddress: " + IPAddress + "\n";
+        string += "port: " + port;
+        return string;
+    }
 }

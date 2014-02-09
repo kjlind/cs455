@@ -6,6 +6,10 @@ import java.util.Scanner;
 
 import cs455.overlay.tcp.Client;
 import cs455.overlay.tcp.Sender;
+import cs455.overlay.wireformats.DeregisterRequest;
+import cs455.overlay.wireformats.Message;
+import cs455.overlay.wireformats.MessageFactory;
+import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegisterRequest;
 
 /**
@@ -33,7 +37,7 @@ import cs455.overlay.wireformats.RegisterRequest;
  * @date Jan 22, 2014
  */
 public class MessagingNode extends Node implements Runnable {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private final String registryHost;
     private final int registryPort;
@@ -54,9 +58,20 @@ public class MessagingNode extends Node implements Runnable {
     }
 
     @Override
-    public synchronized void handleMessage(byte[] message) {
-        // TODO Auto-generated method stub
-
+    public synchronized void handleMessage(byte[] messageBytes)
+        throws IOException {
+        Message message = MessageFactory.createMessage(messageBytes);
+        switch (message.getType()) {
+        case Protocol.REGISTER_RESPONSE:
+            // TODO: what to do with unsuccessful response?
+            System.out.println("\nREGISTER RESPONSESSSSLSLDSJLAKL");
+            System.out.println(message);
+            break;
+        default:
+            // TODO: better error handling here (just ignore unrecognized types
+            // maybe?)
+            throw new IOException("Bad message type!");
+        }
     }
 
     /**
@@ -119,7 +134,18 @@ public class MessagingNode extends Node implements Runnable {
         handleCommandLine();
 
         /* deregister and clean up */
-        deregisterAndCleanUp(registrySender);
+        try {
+            deregisterAndCleanUp(registrySender);
+        } catch (IOException e) {
+            System.out.println("Attempt to send deregistration request"
+                + " failed; an I/O error occurred");
+            System.out.println("Details:");
+            e.printStackTrace();
+        }
+
+        // TODO: nicer exiting
+        // TODO: how to handle failed deregistration? should probably allow user
+        // to try again, and/or re-enter CLI loop
     }
 
     /**
@@ -181,12 +207,16 @@ public class MessagingNode extends Node implements Runnable {
     /**
      * Helper method for run. Sends a deregister request from the given node,
      * and handles any clean up needed.
+     * 
+     * @throws IOException if an I/O error occurs when trying to send the
+     * deregister request
      */
-    private void deregisterAndCleanUp(Sender registrySender) {
+    private void deregisterAndCleanUp(Sender registrySender) throws IOException {
         // send a deregister request
-        // TODO: nicer exiting
-        // TODO: how to handle failed deregistration? should probably allow user
-        // to try again, and/or re-enter CLI loop
+        String IPAddress = registrySender.getLocalHostAddress();
+        int port = getPort();
+        DeregisterRequest request = new DeregisterRequest(IPAddress, port);
+        registrySender.sendBytes(request.getBytes());
     }
 
     public static void main(String args[]) {

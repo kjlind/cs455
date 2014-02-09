@@ -11,6 +11,7 @@ import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegisterRequest;
+import cs455.overlay.wireformats.RegisterResponse;
 
 /**
  * The Registry coordinates a network of MessagingNodes. It maintains a record
@@ -135,6 +136,8 @@ public class Registry extends Node implements Runnable {
 
         boolean registered = registeredNodes.contains(info);
 
+        boolean success;
+        String responseString;
         if (!registered) {
             if (DEBUG) {
                 System.out.println("Registry: messaging node at " + info
@@ -142,9 +145,30 @@ public class Registry extends Node implements Runnable {
             }
 
             registeredNodes.add(info);
-            // TODO: send a 'success' response
+
+            success = true;
+            responseString = "Registration successful; there are "
+                + registeredNodes.size()
+                + " MessagingNodes currently registered";
         } else {
-            // TODO: send a 'fail' response
+            success = false;
+            responseString = "Registration failed; a node at " + info
+                + " was already registered";
+        }
+
+        /* send response message */
+        Sender sender = getSenders().get(info.toString());
+        // TODO: handle nullness
+
+        RegisterResponse response = new RegisterResponse(success,
+            responseString);
+        try {
+            sender.sendBytes(response.getBytes());
+        } catch (IOException e) {
+            System.out.println("Unable to send response to node at " + info
+                + "; removing from registry");
+            e.printStackTrace();
+            registeredNodes.remove(info);
         }
     }
 
