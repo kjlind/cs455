@@ -45,6 +45,8 @@ public class MessageFactory {
             return new MessagingNodesList(marshalledBytes);
         case Protocol.LINK_WEIGHTS:
             return new LinkWeights(marshalledBytes);
+        case Protocol.TASK_INITIATE:
+            return new TaskInitiate();
         case Protocol.CONNECTION_INFORMATION:
             return new ConnectionInformation(marshalledBytes);
         default:
