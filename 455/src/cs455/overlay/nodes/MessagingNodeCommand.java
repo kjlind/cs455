@@ -12,4 +12,5 @@ public class MessagingNodeCommand {
     public static final String LIST_PATHS = "print-shortest-path";
     public static final String LIST_PEERS = "list-peers";
     public static final String EXIT = "exit-overlay";
+    public static final String HELP = "help";
 }

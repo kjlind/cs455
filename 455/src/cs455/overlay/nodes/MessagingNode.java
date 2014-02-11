@@ -321,6 +321,9 @@ public class MessagingNode extends Node implements Runnable {
 
         while (true) {
             switch (command) {
+            case MessagingNodeCommand.HELP:
+                helpMessage();
+                break;
             case MessagingNodeCommand.LIST_PATHS:
                 listPaths();
                 break;
@@ -342,6 +345,20 @@ public class MessagingNode extends Node implements Runnable {
             }
             command = kbd.next();
         }
+    }
+
+    /**
+     * Prints out all currently valid commands.
+     */
+    private void helpMessage() {
+        System.out.println("print-shortest-path: print the shortests paths"
+            + " which have been calculated to other nodes in the overlay");
+        System.out.println("list-peers: print out node info for all currently"
+            + " maintained connections to other nodes");
+        System.out.println("exit-overlay: deregister from the overlay"
+            + " and quit");
+        System.out.println("help: display this help message");
+        System.out.println("Waiting for a command: ");
     }
 
     /**

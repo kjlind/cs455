@@ -16,4 +16,5 @@ public class RegistryCommand {
     public static final String SETUP_OVERLAY = "setup-overlay";
     public static final String SEND_WEIGHTS = "send-overlay-link-weights";
     public static final String EXIT = "exit";
+    public static final String HELP = "help";
 }

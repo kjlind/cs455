@@ -257,6 +257,9 @@ public class Registry extends Node implements Runnable {
 
         while (!command.equals(RegistryCommand.EXIT)) {
             switch (command) {
+            case RegistryCommand.HELP:
+                helpMessage();
+                break;
             case RegistryCommand.LIST_NODES:
                 listRegisteredNodes();
                 break;
@@ -277,6 +280,23 @@ public class Registry extends Node implements Runnable {
         }
 
         kbd.close();
+    }
+    
+    /**
+     * Prints out all currently valid commands.
+     */
+    private void helpMessage(){
+        System.out.println("list-messaging-nodes: list info about all"
+            + " registered nodes");
+        System.out.println("list-weights: list info about all links currently"
+            + " set up in the overlay");
+        System.out.println("setup-overlay: determine links which should be"
+            + " formed and send messaging nodes list messages to messaging"
+            + " nodes as needed");
+        System.out.println("send-overlay-link-weights: send a link weights"
+            + " message to all registered nodes");
+        System.out.println("exit: quit the program");
+        System.out.println("help: display this help message");
     }
 
     /**
