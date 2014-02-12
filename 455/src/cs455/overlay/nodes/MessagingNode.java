@@ -17,6 +17,7 @@ import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
 import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Protocol;
+import cs455.overlay.wireformats.RandomPayload;
 import cs455.overlay.wireformats.RegisterRequest;
 
 /**
@@ -107,6 +108,23 @@ public class MessagingNode extends Node implements Runnable {
             LinkWeights weights = (LinkWeights) message;
             handleLinkWeights(weights);
             break;
+        case Protocol.TASK_INITIATE:
+            if (DEBUG) {
+                System.out.println("\nMain MN: task initiate, oh yeah");
+                System.out.println(message);
+            }
+
+            handleTaskInitiate();
+            break;
+        case Protocol.RANDOM_PAYLOAD:
+            if (DEBUG) {
+                System.out.println("\nMain MN: I gots a payload!!!!!");
+                System.out.println(message);
+            }
+
+            RandomPayload payload = (RandomPayload) message;
+            handleRandomPayload(payload);
+            break;
         case Protocol.CONNECTION_INFORMATION:
             if (DEBUG) {
                 System.out.println("\nMain MN: CONNNNNNNECTION info!");
@@ -165,7 +183,7 @@ public class MessagingNode extends Node implements Runnable {
         pathCalculator = new Dijkstra(weights.getLinks());
 
         /* a cheap hack way to get the proper IP for this node */
-        String thisIP = registrySender.getLocalHostAddress();
+        String thisIP = registrySender.getLocalHostName();
 
         NodeInfo thisNode = new NodeInfo(thisIP, getPort());
 
@@ -175,6 +193,77 @@ public class MessagingNode extends Node implements Runnable {
         }
 
         pathCalculator.setSourceNode(thisNode);
+
+        if (DEBUG) {
+            System.out.println("Main MN: finished setting source of path"
+                + " calculator");
+        }
+    }
+
+    /**
+     * Starts the rounds of sending packets.
+     */
+    public void handleTaskInitiate() {
+        if (DEBUG) {
+            System.out.println("Main MN: starting to send messages ");
+        }
+
+        RandomPayloadSender snide = new RandomPayloadSender(getSenders(),
+            pathCalculator);
+        new Thread(snide).start();
+    }
+
+    /**
+     * Forwards or receives payloads depending upon the routing plan.
+     * 
+     * @throws IOException
+     */
+    public void handleRandomPayload(RandomPayload message) throws IOException {
+        NodeInfo[] routingPlan = message.getRoutingPlan();
+
+        // figure out where we are in the routing plan
+        int thisIndex = getIndexOfThisNodeIn(routingPlan);
+        // if we are the destination:
+        if (thisIndex == -1) {
+            // TODO: ERRRRRRROORORORORO
+            System.out.println("Oh no, I received a packet for which I was not"
+                + " in the routing plan :(");
+        } else if (thisIndex == routingPlan.length - 1) {
+            // add payload to received tracker
+
+        } else {
+            // if we're not (ie in the middle somewhere)
+            // add to relayed tracker
+            // send the message on to next node in the plan
+            NodeInfo nextNode = routingPlan[thisIndex + 1];
+
+            if (DEBUG) {
+                System.out.println("Forwarding a packet to: " + nextNode);
+            }
+
+            Sender sender = getSenders().get(nextNode.toString());
+            // TODO: handle nulllllllll
+            sender.sendBytes(message.getBytes());
+        }
+    }
+
+    /**
+     * Helper for handleRandomPayload; finds the occurrence of a node info
+     * object corresponding to this node in the routing plan.
+     * 
+     * @return the index of the first occurrence of a node info corresponding to
+     * this node, or -1 if not found
+     */
+    private int getIndexOfThisNodeIn(NodeInfo[] routingPlan) {
+        NodeInfo thisNode = pathCalculator.getSourceNode();
+
+        for (int i = 0; i < routingPlan.length; ++i) {
+            if (routingPlan[i].equals(thisNode)) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     /**
@@ -288,6 +377,7 @@ public class MessagingNode extends Node implements Runnable {
         }
 
         registrySender = new Client(this).connectTo(registryHost, registryPort);
+        // getSenders().remove(registrySender);
     }
 
     /**
@@ -300,7 +390,7 @@ public class MessagingNode extends Node implements Runnable {
      */
     private void sendRegisterRequest() throws IOException {
         RegisterRequest request = new RegisterRequest(
-            registrySender.getLocalHostAddress(), getPort());
+            registrySender.getLocalHostName(), getPort());
 
         if (DEBUG) {
             System.out.println("Main MN: sending register request to registry");
@@ -316,7 +406,7 @@ public class MessagingNode extends Node implements Runnable {
      */
     private void handleCommandLine() {
         Scanner kbd = new Scanner(System.in);
-        System.out.println("Waiting for a command: ");
+        System.out.print("Waiting for a command: ");
         String command = kbd.next();
 
         while (true) {
@@ -343,6 +433,7 @@ public class MessagingNode extends Node implements Runnable {
             default:
                 System.out.println("Unrecognized command!");
             }
+            System.out.print("Waiting for a command: ");
             command = kbd.next();
         }
     }
@@ -358,7 +449,6 @@ public class MessagingNode extends Node implements Runnable {
         System.out.println("exit-overlay: deregister from the overlay"
             + " and quit");
         System.out.println("help: display this help message");
-        System.out.println("Waiting for a command: ");
     }
 
     /**
@@ -394,7 +484,7 @@ public class MessagingNode extends Node implements Runnable {
      */
     private void sendDeregisterRequest() throws IOException {
         // send a deregister request
-        String IPAddress = registrySender.getLocalHostAddress();
+        String IPAddress = registrySender.getLocalHostName();
         int port = getPort();
         DeregisterRequest request = new DeregisterRequest(IPAddress, port);
         registrySender.sendBytes(request.getBytes());

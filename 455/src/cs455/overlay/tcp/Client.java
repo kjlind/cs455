@@ -59,7 +59,7 @@ public class Client {
         new ReceiverThread(socket, targetedNode).start();
 
         /* set name of sender to hostname and server port of receiving node */
-        String senderName = sender.getReceiverHostAddress() + ":" + port;
+        String senderName = sender.getReceiverHostName() + ":" + port;
         sender.setName(senderName);
 
         if (DEBUG) {
@@ -69,7 +69,7 @@ public class Client {
         }
 
         /* send connection information to the receiving node */
-        String localHostAddress = sender.getLocalHostAddress();
+        String localHostAddress = sender.getLocalHostName();
         int localPort = sender.getLocalPort();
         int localServerPort = targetedNode.getPort();
         ConnectionInformation info = new ConnectionInformation(

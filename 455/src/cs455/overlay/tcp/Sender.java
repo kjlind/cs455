@@ -28,7 +28,7 @@ public class Sender {
          * set an initial (presumably unique unless something has broken) name
          * for this sender so that it may be hashed properly
          */
-        String initialName = getReceiverHostAddress() + ":" + getReceiverPort();
+        String initialName = getReceiverHostName() + ":" + getReceiverPort();
         // System.out.println("Sender ctor, initial name: " + initialName);
 
         setName(initialName);
@@ -40,6 +40,10 @@ public class Sender {
     public String getReceiverHostAddress() {
         return socket.getInetAddress().getHostAddress();
     }
+    
+    public String getReceiverHostName(){
+        return socket.getInetAddress().getHostName();
+    }
 
     /**
      * @return string representation of the address to which the socket in this
@@ -47,6 +51,10 @@ public class Sender {
      */
     public String getLocalHostAddress() {
         return socket.getLocalAddress().getHostAddress();
+    }
+    
+    public String getLocalHostName(){
+        return socket.getLocalAddress().getHostName();
     }
 
     /**

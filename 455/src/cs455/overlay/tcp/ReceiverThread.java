@@ -22,6 +22,7 @@ import cs455.overlay.nodes.Node;
 public class ReceiverThread extends Thread {
     private Socket socket;
     private Node targetedNode;
+    private DataInputStream din;
 
     public ReceiverThread(Socket socket, Node targetedNode) {
         this.socket = socket;
@@ -37,9 +38,6 @@ public class ReceiverThread extends Thread {
      * from the socket
      */
     private byte[] receiveBytes() throws IOException {
-        DataInputStream din = new DataInputStream(new BufferedInputStream(
-            socket.getInputStream()));
-
         int dataSize = din.readInt();
         byte[] data = new byte[dataSize];
         din.readFully(data);
@@ -56,6 +54,13 @@ public class ReceiverThread extends Thread {
 
     @Override
     public void run() {
+        try {
+            din = new DataInputStream(new BufferedInputStream(
+                socket.getInputStream()));
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
         // TODO: change to while(socket.isConnected())?
         while (true) {
             try {

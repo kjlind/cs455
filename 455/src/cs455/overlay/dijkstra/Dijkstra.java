@@ -66,15 +66,44 @@ public class Dijkstra {
     }
 
     /**
+     * @return the source node for this dijkstra object
+     */
+    public NodeInfo getSourceNode() {
+        return sourceNode;
+    }
+
+    /**
+     * @return a list of all messaging nodes currently in the overlay
+     */
+    public List<NodeInfo> getAllNodes() {
+        List<Vertex> allVertices = overlay.getVertices();
+        List<NodeInfo> allNodes = new ArrayList<NodeInfo>();
+        for (Vertex vertex : allVertices) {
+            String nodeName = vertex.getCity();
+
+            /* split the name into IPAddress and server port fields */
+            Scanner nameScanner = new Scanner(nodeName);
+            nameScanner.useDelimiter(":");
+            String IPAddress = nameScanner.next();
+            int serverPort = nameScanner.nextInt();
+            nameScanner.close();
+
+            allNodes.add(new NodeInfo(IPAddress, serverPort));
+        }
+        return allNodes;
+    }
+
+    /**
      * Retrieves and returns the shortest path from the source node to the
      * specified destination node.
      */
-    public List<NodeInfo> getPathTo(NodeInfo destinationNode) {
+    public NodeInfo[] getPathTo(NodeInfo destinationNode) {
         Vertex destinationVertex = new Vertex(destinationNode.toString());
 
         List<Vertex> pathAsVertices = pathCalculator.getPath(destinationVertex);
         List<NodeInfo> pathAsNodes = new ArrayList<NodeInfo>();
 
+        /* convert vertices to node info objects */
         for (Vertex vertex : pathAsVertices) {
             String nodeName = vertex.getCity();
 
@@ -88,7 +117,13 @@ public class Dijkstra {
             pathAsNodes.add(new NodeInfo(IPAddress, serverPort));
         }
 
-        return pathAsNodes;
+        /* convert list to array */
+        NodeInfo[] pathArray = new NodeInfo[pathAsNodes.size()];
+        for (int i = 0; i < pathAsNodes.size(); ++i) {
+            pathArray[i] = pathAsNodes.get(i);
+        }
+
+        return pathArray;
     }
 
     /**

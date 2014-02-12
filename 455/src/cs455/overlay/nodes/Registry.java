@@ -20,6 +20,7 @@ import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegisterRequest;
 import cs455.overlay.wireformats.RegisterResponse;
+import cs455.overlay.wireformats.TaskInitiate;
 
 /**
  * The Registry coordinates a network of MessagingNodes. It maintains a record
@@ -252,7 +253,7 @@ public class Registry extends Node implements Runnable {
      */
     private void handleCommandLine() {
         Scanner kbd = new Scanner(System.in);
-        System.out.println("Waiting for a command: ");
+        System.out.print("Waiting for a command: ");
         String command = kbd.next();
 
         while (!command.equals(RegistryCommand.EXIT)) {
@@ -273,9 +274,13 @@ public class Registry extends Node implements Runnable {
             case RegistryCommand.SEND_WEIGHTS:
                 sendWeights();
                 break;
+            case RegistryCommand.START:
+                sendTaskInitiate();
+                break;
             default:
                 System.out.println("Unrecognized command!");
             }
+            System.out.print("Waiting for a command: ");
             command = kbd.next();
         }
 
@@ -286,17 +291,16 @@ public class Registry extends Node implements Runnable {
      * Prints out all currently valid commands.
      */
     private void helpMessage() {
-        System.out.println("list-messaging-nodes: list info about all"
-            + " registered nodes");
-        System.out.println("list-weights: list info about all links currently"
+        System.out.println("nodes: list info about all" + " registered nodes");
+        System.out.println("weights: list info about all links currently"
             + " set up in the overlay");
-        System.out.println("setup-overlay: determine links which should be"
+        System.out.println("setup: determine links which should be"
             + " formed and send messaging nodes list messages to nodes");
-        System.out.println("send-overlay-link-weights: send a link weights"
+        System.out.println("send-weights: send a link weights"
             + " message to all registered nodes");
         System.out.println("exit: quit the program");
+        System.out.println("start: instruct messaging nodes to begin rounds");
         System.out.println("help: display this help message");
-        System.out.println("Waiting for a command: ");
     }
 
     /**
@@ -382,6 +386,26 @@ public class Registry extends Node implements Runnable {
                 sender.sendBytes(weightsMessage.getBytes());
             } catch (IOException e) {
                 System.out.println("Error sending link weights message to "
+                    + nextNode);
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Attempts to send a task initiate message to all currently registered
+     * nodes. If any attempt fails, prints an error message and gives up on that
+     * attempt.
+     */
+    private void sendTaskInitiate() {
+        TaskInitiate tanky = new TaskInitiate();
+        for (NodeInfo nextNode : registeredNodes) {
+            Sender sender = getSenders().get(nextNode.toString());
+            // TODO: handle nullll!
+            try {
+                sender.sendBytes(tanky.getBytes());
+            } catch (IOException e) {
+                System.out.println("Error sending task initiate message to "
                     + nextNode);
                 e.printStackTrace();
             }

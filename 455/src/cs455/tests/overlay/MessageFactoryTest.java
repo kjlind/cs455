@@ -17,6 +17,7 @@ import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
 import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Protocol;
+import cs455.overlay.wireformats.RandomPayload;
 import cs455.overlay.wireformats.RegisterRequest;
 import cs455.overlay.wireformats.RegisterResponse;
 
@@ -101,6 +102,28 @@ public class MessageFactoryTest {
             assertEquals(Protocol.MESSAGING_NODES_LIST, message.getType());
             MessagingNodesList list = (MessagingNodesList) message;
             assertArrayEquals(nod, list.getMessagingNodes());
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Unexpected I/O error on getBytes() method of valid"
+                + " MessagingNodesList :( (see console output for details)");
+        }
+    }
+    
+    @Test
+    public void testCreateRandomPayload(){
+        // valid
+        int payload = 13242;
+        NodeInfo[] route = new NodeInfo[3];
+        route[0] = new NodeInfo("denver", 64372);
+        route[1] = new NodeInfo("kitaro", 64374);
+        route[2] = new NodeInfo("bierstadt", 64342);
+        try {
+            byte[] marshalledBytes = new RandomPayload(payload, route).getBytes();
+            Message message = MessageFactory.createMessage(marshalledBytes);
+            assertEquals(Protocol.RANDOM_PAYLOAD, message.getType());
+            RandomPayload pay = (RandomPayload) message;
+            assertEquals(payload, pay.getPayload());
+            assertArrayEquals(route, pay.getRoutingPlan());
         } catch (IOException e) {
             e.printStackTrace();
             fail("Unexpected I/O error on getBytes() method of valid"

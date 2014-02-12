@@ -1,9 +1,7 @@
 package cs455.tests.overlay;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -52,33 +50,25 @@ public class DijkstraTest {
     @Test
     public void testGetPathTo() {
         // bierstadt - kitaro
-        List<NodeInfo> pathToKitaro = dike.getPathTo(kitaro);
-        List<NodeInfo> properPath = new ArrayList<NodeInfo>();
-        properPath.add(bierstadt);
-        properPath.add(shavano);
-        properPath.add(kitaro);
+        NodeInfo[] pathToKitaro = dike.getPathTo(kitaro);
+        NodeInfo[] properPathToKitaro = { bierstadt, shavano, kitaro };
         System.out.println("Calculated path, bierstadt -- kitaro: "
             + pathToKitaro);
-        assertEquals(properPath, pathToKitaro);
+        assertArrayEquals(properPathToKitaro, pathToKitaro);
 
         // bierstadt - shavano
-        List<NodeInfo> pathToShavano = dike.getPathTo(shavano);
-        properPath.clear();
-        properPath.add(bierstadt);
-        properPath.add(shavano);
+        NodeInfo[] pathToShavano = dike.getPathTo(shavano);
+        NodeInfo[] properPathToShavano = { bierstadt, shavano };
         System.out.println("Calculated path, bierstadt -- shavano: "
             + pathToShavano);
-        assertEquals(properPath, pathToShavano);
+        assertArrayEquals(properPathToShavano, pathToShavano);
 
         // bierstadt - bismarck
-        List<NodeInfo> pathToBismarck = dike.getPathTo(bismarck);
-        properPath.clear();
-        properPath.add(bierstadt);
-        properPath.add(shavano);
-        properPath.add(bismarck);
+        NodeInfo[] pathToBismarck = dike.getPathTo(bismarck);
+        NodeInfo[] properPathToBismarck = { bierstadt, shavano, bismarck };
         System.out.println("Calculated path, bierstadt -- bismarck: "
             + pathToBismarck);
-        assertEquals(properPath, pathToBismarck);
+        assertArrayEquals(properPathToBismarck, pathToBismarck);
     }
 
     @Test
