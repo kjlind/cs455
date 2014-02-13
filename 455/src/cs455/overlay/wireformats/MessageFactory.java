@@ -49,6 +49,10 @@ public class MessageFactory {
             return new TaskInitiate();
         case Protocol.RANDOM_PAYLOAD:
             return new RandomPayload(marshalledBytes);
+        case Protocol.TASK_COMPLETE:
+            return new TaskComplete(marshalledBytes);
+        case Protocol.PULL_TRAFFIC_SUMMARY:
+            return new PullTrafficSummary();
         case Protocol.CONNECTION_INFORMATION:
             return new ConnectionInformation(marshalledBytes);
         default:

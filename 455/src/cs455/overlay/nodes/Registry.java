@@ -18,8 +18,10 @@ import cs455.overlay.wireformats.Message;
 import cs455.overlay.wireformats.MessageFactory;
 import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Protocol;
+import cs455.overlay.wireformats.PullTrafficSummary;
 import cs455.overlay.wireformats.RegisterRequest;
 import cs455.overlay.wireformats.RegisterResponse;
+import cs455.overlay.wireformats.TaskComplete;
 import cs455.overlay.wireformats.TaskInitiate;
 
 /**
@@ -46,6 +48,8 @@ public class Registry extends Node implements Runnable {
     // private static final int DEFAULT_NUM_CONNECTIONS = 4;
 
     private List<NodeInfo> registeredNodes;
+    private List<NodeInfo> unfinishedNodes;
+
     private List<LinkInfo> links;
 
     /**
@@ -87,6 +91,14 @@ public class Registry extends Node implements Runnable {
             DeregisterRequest derequest = (DeregisterRequest) message;
             handleDeregisterRequest(derequest);
 
+            break;
+        case Protocol.TASK_COMPLETE:
+            TaskComplete complete = (TaskComplete) message;
+            if (DEBUG) {
+                System.out.println("Registry: got a task complete from "
+                    + complete.getIPAddress() + ":" + complete.getPort());
+            }
+            handleTaskComplete(complete);
             break;
         case Protocol.CONNECTION_INFORMATION:
             if (DEBUG) {
@@ -194,6 +206,46 @@ public class Registry extends Node implements Runnable {
                 + "; removing from registry");
             e.printStackTrace();
             registeredNodes.remove(info);
+        }
+    }
+
+    /**
+     * Removes the node with the ip address and port provided in the task
+     * complete message from the list of unfinished nodes. If all nodes have
+     * finished, sends a pull traffic summary message.
+     */
+    private void handleTaskComplete(TaskComplete complete) {
+        NodeInfo finishedNode = new NodeInfo(complete.getIPAddress(),
+            complete.getPort());
+        unfinishedNodes.remove(finishedNode);
+
+        if (unfinishedNodes.isEmpty()) {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+
+            // do stuff!!!!
+            PullTrafficSummary summa = new PullTrafficSummary();
+            for (NodeInfo nextNode : registeredNodes) {
+                Sender sender = getSenders().get(nextNode.toString());
+                // TODO: handle nullll!
+                try {
+                    sender.sendBytes(summa.getBytes());
+                } catch (IOException e) {
+                    System.out
+                        .println("Error sending task initiate message to "
+                            + nextNode);
+                    e.printStackTrace();
+                }
+            }
+
+            if (DEBUG) {
+                System.out.println("All nodes are done! Yeah so close now!");
+                System.out.println("sent them all a pull traffic summary");
+            }
         }
     }
 
@@ -398,6 +450,11 @@ public class Registry extends Node implements Runnable {
      * attempt.
      */
     private void sendTaskInitiate() {
+        /* initialize list to track who is finished */
+        unfinishedNodes = new ArrayList<NodeInfo>();
+        unfinishedNodes.addAll(registeredNodes);
+
+        /* tell nodes to start sending messages */
         TaskInitiate tanky = new TaskInitiate();
         for (NodeInfo nextNode : registeredNodes) {
             Sender sender = getSenders().get(nextNode.toString());

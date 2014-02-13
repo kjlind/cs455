@@ -19,6 +19,7 @@ import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RandomPayload;
 import cs455.overlay.wireformats.RegisterRequest;
+import cs455.overlay.wireformats.TaskComplete;
 
 /**
  * When started, a MessagingNode attempts to register with the Registry using
@@ -53,6 +54,12 @@ public class MessagingNode extends Node implements Runnable {
     private Sender registrySender;
 
     private Dijkstra pathCalculator;
+
+    private int sentTracker;
+    private long sentSum;
+    private int receivedTracker;
+    private long receivedSum;
+    private int relayedTracker;
 
     public MessagingNode(String registryHost, int registryPort) {
         super();
@@ -111,7 +118,6 @@ public class MessagingNode extends Node implements Runnable {
         case Protocol.TASK_INITIATE:
             if (DEBUG) {
                 System.out.println("\nMain MN: task initiate, oh yeah");
-                System.out.println(message);
             }
 
             handleTaskInitiate();
@@ -124,6 +130,12 @@ public class MessagingNode extends Node implements Runnable {
 
             RandomPayload payload = (RandomPayload) message;
             handleRandomPayload(payload);
+            break;
+        case Protocol.PULL_TRAFFIC_SUMMARY:
+            if (DEBUG) {
+                System.out.println("\nMain MN: PTS");
+            }
+            handlePullTrafficSummary();
             break;
         case Protocol.CONNECTION_INFORMATION:
             if (DEBUG) {
@@ -203,14 +215,42 @@ public class MessagingNode extends Node implements Runnable {
     /**
      * Starts the rounds of sending packets.
      */
-    public void handleTaskInitiate() {
+    private void handleTaskInitiate() {
         if (DEBUG) {
             System.out.println("Main MN: starting to send messages ");
         }
 
         RandomPayloadSender snide = new RandomPayloadSender(getSenders(),
-            pathCalculator);
+            pathCalculator, this);
         new Thread(snide).start();
+    }
+
+    /**
+     * Updates the sentTracker (increments by one) and the sentSum (adds the
+     * value of payload). The name... I don't even know.
+     */
+    public void iSentAPayload(int payload) {
+        sentTracker++;
+        sentSum += payload;
+    }
+
+    /**
+     * Sends a task complete message to the registry.
+     * 
+     * @throws IOException if I/O error occurs when trying to send the message
+     */
+    public void sendTaskComplete() throws IOException {
+        if (DEBUG) {
+            System.out.println("done sending!");
+            System.out.println("sentTracker: " + sentTracker);
+            System.out.println("sentSum: " + sentSum);
+            System.out.println("receivedTracker: " + receivedTracker);
+            System.out.println("receivedSum: " + receivedSum);
+            System.out.println("relayedTracker: " + relayedTracker);
+        }
+        TaskComplete imDoneYo = new TaskComplete(
+            registrySender.getLocalHostName(), getPort());
+        registrySender.sendBytes(imDoneYo.getBytes());
     }
 
     /**
@@ -218,7 +258,7 @@ public class MessagingNode extends Node implements Runnable {
      * 
      * @throws IOException
      */
-    public void handleRandomPayload(RandomPayload message) throws IOException {
+    private void handleRandomPayload(RandomPayload message) throws IOException {
         NodeInfo[] routingPlan = message.getRoutingPlan();
 
         // figure out where we are in the routing plan
@@ -230,15 +270,23 @@ public class MessagingNode extends Node implements Runnable {
                 + " in the routing plan :(");
         } else if (thisIndex == routingPlan.length - 1) {
             // add payload to received tracker
+            receivedTracker++;
+            receivedSum += message.getPayload();
+
+            if (DEBUG) {
+                System.out.println("received so far: " + receivedTracker);
+            }
 
         } else {
             // if we're not (ie in the middle somewhere)
             // add to relayed tracker
+            relayedTracker++;
             // send the message on to next node in the plan
             NodeInfo nextNode = routingPlan[thisIndex + 1];
 
             if (DEBUG) {
                 System.out.println("Forwarding a packet to: " + nextNode);
+                System.out.println("forwarded so far: " + relayedTracker);
             }
 
             Sender sender = getSenders().get(nextNode.toString());
@@ -264,6 +312,14 @@ public class MessagingNode extends Node implements Runnable {
         }
 
         return -1;
+    }
+
+    /**
+     * Sends a traffic summary message to the registry and then resets the
+     * counters.
+     */
+    private void handlePullTrafficSummary() {
+
     }
 
     /**
