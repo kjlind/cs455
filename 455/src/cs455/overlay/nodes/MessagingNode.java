@@ -20,6 +20,7 @@ import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RandomPayload;
 import cs455.overlay.wireformats.RegisterRequest;
 import cs455.overlay.wireformats.TaskComplete;
+import cs455.overlay.wireformats.TrafficSummary;
 
 /**
  * When started, a MessagingNode attempts to register with the Registry using
@@ -46,7 +47,7 @@ import cs455.overlay.wireformats.TaskComplete;
  * @date Jan 22, 2014
  */
 public class MessagingNode extends Node implements Runnable {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private final String registryHost;
     private final int registryPort;
@@ -317,9 +318,28 @@ public class MessagingNode extends Node implements Runnable {
     /**
      * Sends a traffic summary message to the registry and then resets the
      * counters.
+     * 
+     * @throws IOException if an I/O error occurs
      */
-    private void handlePullTrafficSummary() {
+    private void handlePullTrafficSummary() throws IOException {
+        TrafficSummary summary = new TrafficSummary(
+            registrySender.getLocalHostName(), getPort(), sentTracker, sentSum,
+            receivedTracker, receivedSum, relayedTracker);
 
+        registrySender.sendBytes(summary.getBytes());
+
+        resetCounters();
+    }
+
+    /**
+     * Resets all traffic summary counters to 0 so we're ready for another go.
+     */
+    private void resetCounters() {
+        sentTracker = 0;
+        sentSum = 0;
+        receivedTracker = 0;
+        receivedSum = 0;
+        relayedTracker = 0;
     }
 
     /**

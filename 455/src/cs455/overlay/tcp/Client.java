@@ -17,7 +17,7 @@ import cs455.overlay.wireformats.ConnectionInformation;
  * @date Jan 28, 2014
  */
 public class Client {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private Node targetedNode;
 

@@ -23,6 +23,7 @@ import cs455.overlay.wireformats.RegisterRequest;
 import cs455.overlay.wireformats.RegisterResponse;
 import cs455.overlay.wireformats.TaskComplete;
 import cs455.overlay.wireformats.TaskInitiate;
+import cs455.overlay.wireformats.TrafficSummary;
 
 /**
  * The Registry coordinates a network of MessagingNodes. It maintains a record
@@ -49,6 +50,8 @@ public class Registry extends Node implements Runnable {
 
     private List<NodeInfo> registeredNodes;
     private List<NodeInfo> unfinishedNodes;
+
+    private List<TrafficSummary> collectedSummaries;
 
     private List<LinkInfo> links;
 
@@ -93,12 +96,20 @@ public class Registry extends Node implements Runnable {
 
             break;
         case Protocol.TASK_COMPLETE:
-            TaskComplete complete = (TaskComplete) message;
             if (DEBUG) {
-                System.out.println("Registry: got a task complete from "
-                    + complete.getIPAddress() + ":" + complete.getPort());
+                System.out.println("\nRegistry: got a task complete");
+                System.out.println(message);
             }
+            TaskComplete complete = (TaskComplete) message;
             handleTaskComplete(complete);
+            break;
+        case Protocol.TRAFFIC_SUMMARY:
+            if (DEBUG) {
+                System.out.println("\nRegistry: got a traffic summary");
+                System.out.println(message);
+            }
+            TrafficSummary summary = (TrafficSummary) message;
+            handleTrafficSummary(summary);
             break;
         case Protocol.CONNECTION_INFORMATION:
             if (DEBUG) {
@@ -247,6 +258,81 @@ public class Registry extends Node implements Runnable {
                 System.out.println("sent them all a pull traffic summary");
             }
         }
+    }
+
+    /**
+     * Stores the traffic summary received; when there are as many as there are
+     * registered nodes, prints a summary table.
+     */
+    private void handleTrafficSummary(TrafficSummary summary) {
+        collectedSummaries.add(summary);
+
+        if (collectedSummaries.size() == registeredNodes.size()) {
+            printSummaryTable();
+        }
+    }
+
+    /**
+     * Handles formatting and printing of the summary table.
+     */
+    private void printSummaryTable() {
+        System.out
+            .println("\t\t#sent\t#received\tsum sent\tsum received\t#relayed");
+        for (TrafficSummary summary : collectedSummaries) {
+            System.out.println(summary.getIPAddress() + ":" + summary.getPort()
+                + "\t" + summary.getSentTracker() + "\t"
+                + summary.getReceivedTracker() + "\t" + summary.getSentSum()
+                + "\t" + summary.getReceivedSum() + "\t"
+                + summary.getRelayedTracker());
+        }
+        System.out.println();
+        System.out.print("Sum:\t" + totalSentTrackers() + "\t"
+            + totalReceivedTrackers() + "\t" + totalSentSums() + "\t"
+            + totalReceivedSums());
+    }
+
+    /**
+     * @return the sum of the sent tracker values of summaries collected
+     */
+    private int totalSentTrackers() {
+        int sum = 0;
+        for (TrafficSummary summary : collectedSummaries) {
+            sum += summary.getSentTracker();
+        }
+        return sum;
+    }
+
+    /**
+     * @return the sum of the received tracker values of summaries collected
+     */
+    private int totalReceivedTrackers() {
+        int sum = 0;
+        for (TrafficSummary summary : collectedSummaries) {
+            sum += summary.getReceivedTracker();
+        }
+        return sum;
+    }
+
+    /**
+     * @return the sum of the sent sum values of summaries collected
+     */
+    private int totalSentSums() {
+        int sum = 0;
+        for (TrafficSummary summary : collectedSummaries) {
+            sum += summary.getSentSum();
+        }
+        return sum;
+    }
+
+    /**
+     * @return the sum of the received sum values of summaries collected
+     */
+    private int totalReceivedSums() {
+        int sum = 0;
+        for (TrafficSummary summary : collectedSummaries) {
+            sum += summary.getReceivedSum();
+        }
+        return sum;
     }
 
     /**
@@ -453,6 +539,7 @@ public class Registry extends Node implements Runnable {
         /* initialize list to track who is finished */
         unfinishedNodes = new ArrayList<NodeInfo>();
         unfinishedNodes.addAll(registeredNodes);
+        collectedSummaries = new ArrayList<TrafficSummary>();
 
         /* tell nodes to start sending messages */
         TaskInitiate tanky = new TaskInitiate();

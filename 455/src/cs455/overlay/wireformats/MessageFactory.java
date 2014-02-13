@@ -53,6 +53,8 @@ public class MessageFactory {
             return new TaskComplete(marshalledBytes);
         case Protocol.PULL_TRAFFIC_SUMMARY:
             return new PullTrafficSummary();
+        case Protocol.TRAFFIC_SUMMARY:
+            return new TrafficSummary(marshalledBytes);
         case Protocol.CONNECTION_INFORMATION:
             return new ConnectionInformation(marshalledBytes);
         default:
