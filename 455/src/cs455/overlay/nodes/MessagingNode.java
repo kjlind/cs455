@@ -19,6 +19,7 @@ import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RandomPayload;
 import cs455.overlay.wireformats.RegisterRequest;
+import cs455.overlay.wireformats.RegisterResponse;
 import cs455.overlay.wireformats.TaskComplete;
 import cs455.overlay.wireformats.TrafficSummary;
 
@@ -89,6 +90,8 @@ public class MessagingNode extends Node implements Runnable {
                     + " RESPONSESSSSLSLDSJLAKL");
                 System.out.println(message);
             }
+            RegisterResponse regResponse = (RegisterResponse) message;
+            handleRegisterResponse(regResponse);
             break;
         case Protocol.DEREGISTER_RESPONSE:
             if (DEBUG) {
@@ -154,6 +157,18 @@ public class MessagingNode extends Node implements Runnable {
     }
 
     /**
+     * Prints out the info from the response and gives up and quits if unable to
+     * register.
+     */
+    private void handleRegisterResponse(RegisterResponse response) {
+        System.out.println(response.getInfo());
+        if (!response.getSuccess()) {
+            System.out.println("Unable to register! D: Giving up.");
+            cleanUpAndExit();
+        }
+    }
+
+    /**
      * Closes all senders and exits if deregistration was successful; prints an
      * error message if it was not.
      */
@@ -172,6 +187,8 @@ public class MessagingNode extends Node implements Runnable {
      * attempt fails, prints an error message and gives up on that attempt.
      */
     private void handleMessagingNodesList(MessagingNodesList list) {
+        System.out.println("Received a messaging nodes list message;"
+            + " connecting to peers now.");
         NodeInfo[] peers = list.getMessagingNodes();
         for (NodeInfo nextNode : peers) {
             String IPAddress = nextNode.getHostName();
@@ -193,6 +210,8 @@ public class MessagingNode extends Node implements Runnable {
      * contained in the message; also sets the source to be this node.
      */
     private void handleLinkWeights(LinkWeights weights) {
+        System.out.println("Received a link weights message; computing"
+            + " shortest paths now.");
         pathCalculator = new Dijkstra(weights.getLinks());
 
         /* a cheap hack way to get the proper IP for this node */
@@ -217,10 +236,8 @@ public class MessagingNode extends Node implements Runnable {
      * Starts the rounds of sending packets.
      */
     private void handleTaskInitiate() {
-        if (DEBUG) {
-            System.out.println("Main MN: starting to send messages ");
-        }
-
+        System.out.println("Received a task initiate message; beginning"
+            + " sending payloads now.");
         RandomPayloadSender snide = new RandomPayloadSender(getSenders(),
             pathCalculator, this);
         new Thread(snide).start();
@@ -267,7 +284,7 @@ public class MessagingNode extends Node implements Runnable {
         // if we are the destination:
         if (thisIndex == -1) {
             // TODO: ERRRRRRROORORORORO
-            System.out.println("Oh no, I received a packet for which I was not"
+            System.err.println("Oh no, I received a packet for which I was not"
                 + " in the routing plan :(");
         } else if (thisIndex == routingPlan.length - 1) {
             // add payload to received tracker
@@ -381,6 +398,7 @@ public class MessagingNode extends Node implements Runnable {
     @Override
     public void run() {
         /* start server thread */
+        System.out.println("Starting up server...");
         try {
             // TODO: startServer without specifying a portnum
             startServer();
@@ -393,37 +411,41 @@ public class MessagingNode extends Node implements Runnable {
         }
 
         /* connect to Registry */
+        System.out.println("Connecting to registry...");
         try {
             connectToRegistry();
         } catch (UnknownHostException e) {
             System.out.println("Unable to connect to registry at the provided"
                 + " hostname: " + registryHost + " and port number: "
                 + registryPort);
-            System.out.println("Unknown host; seems no one is listening"
+            System.err.println("Unknown host; seems no one is listening"
                 + " there!");
-            System.out.println("Details:");
+            System.err.println("Details:");
             e.printStackTrace();
+            System.err.println("Giving up now.");
             System.exit(-1);
         } catch (IOException e) {
             System.out.println("Unable to connect to registry at the provided"
                 + " hostname: " + registryHost + " and port number: "
                 + registryPort);
-            System.out.println("An I/O error occured");
-            System.out.println("Details:");
+            System.err.println("An I/O error occured");
+            System.err.println("Details:");
             e.printStackTrace();
+            System.err.println("Giving up now.");
             System.exit(-1);
         }
 
         /* send register request */
+        System.out.println("Sending a register request...");
         try {
             sendRegisterRequest();
         } catch (IOException e) {
-            System.out.println("Unable to send the register request; an I/O"
+            System.err.println("Unable to send the register request; an I/O"
                 + " error occurred");
-            System.out.println("Details:");
+            System.err.println("Details:");
             e.printStackTrace();
-            // TODO: disconnect more gracefully
-            System.exit(-1);
+            System.err.println("Giving up now.");
+            cleanUpAndExit();
         }
 
         /* handle CLI input */
@@ -482,7 +504,8 @@ public class MessagingNode extends Node implements Runnable {
      */
     private void handleCommandLine() {
         Scanner kbd = new Scanner(System.in);
-        System.out.print("Waiting for a command: ");
+        System.out.println("Waiting for a command (enter 'help' for a"
+            + " description of commands): ");
         String command = kbd.next();
 
         while (true) {
@@ -509,7 +532,6 @@ public class MessagingNode extends Node implements Runnable {
             default:
                 System.out.println("Unrecognized command!");
             }
-            System.out.print("Waiting for a command: ");
             command = kbd.next();
         }
     }

@@ -82,6 +82,8 @@ public class RandomPayloadSender implements Runnable {
 
         try {
             node.sendTaskComplete();
+            System.out.println("Finished sending all payloads; sent a task"
+                + " complete message to the registry.");
         } catch (IOException e) {
             System.err.println("Failed to send task complete! D:");
             e.printStackTrace();

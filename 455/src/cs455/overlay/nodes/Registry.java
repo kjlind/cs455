@@ -45,7 +45,7 @@ import cs455.overlay.wireformats.TrafficSummary;
  * @date Jan 22, 2014
  */
 public class Registry extends Node implements Runnable {
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = false;
     // private static final int DEFAULT_NUM_CONNECTIONS = 4;
 
     private List<NodeInfo> registeredNodes;
@@ -134,6 +134,7 @@ public class Registry extends Node implements Runnable {
      */
     private void handleRegisterRequest(RegisterRequest request) {
         NodeInfo info = new NodeInfo(request.getIPAddress(), request.getPort());
+        System.out.println("Got a register request from " + info + ".");
 
         boolean registered = registeredNodes.contains(info);
 
@@ -181,6 +182,7 @@ public class Registry extends Node implements Runnable {
     private void handleDeregisterRequest(DeregisterRequest derequest) {
         NodeInfo info = new NodeInfo(derequest.getIPAddress(),
             derequest.getPort());
+        System.out.println("Got a deregister request from " + info + ".");
 
         boolean registered = registeredNodes.contains(info);
 
@@ -229,6 +231,8 @@ public class Registry extends Node implements Runnable {
         NodeInfo finishedNode = new NodeInfo(complete.getIPAddress(),
             complete.getPort());
         unfinishedNodes.remove(finishedNode);
+        System.out.println("Got a task complete message from " + finishedNode
+            + ".");
 
         if (unfinishedNodes.isEmpty()) {
             try {
@@ -238,6 +242,8 @@ public class Registry extends Node implements Runnable {
                 e1.printStackTrace();
             }
 
+            System.out.println("All messaging nodes are finished; pulling"
+                + " traffic summaries.");
             // do stuff!!!!
             PullTrafficSummary summa = new PullTrafficSummary();
             for (NodeInfo nextNode : registeredNodes) {
@@ -246,9 +252,8 @@ public class Registry extends Node implements Runnable {
                 try {
                     sender.sendBytes(summa.getBytes());
                 } catch (IOException e) {
-                    System.out
-                        .println("Error sending task initiate message to "
-                            + nextNode);
+                    System.err.println("Error sending pull traffic summary"
+                        + " message to " + nextNode);
                     e.printStackTrace();
                 }
             }
@@ -276,19 +281,20 @@ public class Registry extends Node implements Runnable {
      * Handles formatting and printing of the summary table.
      */
     private void printSummaryTable() {
-        System.out
-            .println("\t\t#sent\t#received\tsum sent\tsum received\t#relayed");
+        System.out.println();
+        System.out.format("%-35s %-15s %-15s %-15s %-15s %-15s %n", "node",
+            "#sent", "#received", "sum sent", "sum received", "#relayed");
         for (TrafficSummary summary : collectedSummaries) {
-            System.out.println(summary.getIPAddress() + ":" + summary.getPort()
-                + "\t" + summary.getSentTracker() + "\t"
-                + summary.getReceivedTracker() + "\t" + summary.getSentSum()
-                + "\t" + summary.getReceivedSum() + "\t"
-                + summary.getRelayedTracker());
+            System.out.format("%-35s %-15d %-15d %-15d %-15d %-15d %n",
+                summary.getIPAddress() + ":" + summary.getPort(),
+                summary.getSentTracker(), summary.getReceivedTracker(),
+                summary.getSentSum(), summary.getReceivedSum(),
+                summary.getRelayedTracker());
         }
         System.out.println();
-        System.out.print("Sum:\t" + totalSentTrackers() + "\t"
-            + totalReceivedTrackers() + "\t" + totalSentSums() + "\t"
-            + totalReceivedSums());
+        System.out.format("%-35s %-15d %-15d %-15d %-15d %n", "Sum",
+            totalSentTrackers(), totalReceivedTrackers(), totalSentSums(),
+            totalReceivedSums());
     }
 
     /**
@@ -367,6 +373,7 @@ public class Registry extends Node implements Runnable {
     @Override
     public void run() {
         /* start server thread */
+        System.out.println("Starting up server...");
         try {
             startServer();
         } catch (IOException e) {
@@ -391,7 +398,8 @@ public class Registry extends Node implements Runnable {
      */
     private void handleCommandLine() {
         Scanner kbd = new Scanner(System.in);
-        System.out.print("Waiting for a command: ");
+        System.out.println("Waiting for a command (enter 'help' for a"
+            + " description of commands): ");
         String command = kbd.next();
 
         while (!command.equals(RegistryCommand.EXIT)) {
@@ -418,7 +426,6 @@ public class Registry extends Node implements Runnable {
             default:
                 System.out.println("Unrecognized command!");
             }
-            System.out.print("Waiting for a command: ");
             command = kbd.next();
         }
 
@@ -478,10 +485,8 @@ public class Registry extends Node implements Runnable {
             peers[0] = registeredNodes.get(peer1Index);
             peers[1] = registeredNodes.get(peer2Index);
 
-            if (DEBUG) {
-                System.out.println("Registry: instructing " + nextNode
-                    + " to connect to " + Arrays.toString(peers));
-            }
+            System.out.println("Instructing " + nextNode + " to connect to "
+                + Arrays.toString(peers));
 
             /* generate weights and add the new links to the list of links */
             Random rand = new Random();
@@ -567,8 +572,9 @@ public class Registry extends Node implements Runnable {
         try {
             port = Integer.parseInt(args[0]);
         } catch (NumberFormatException e) {
-            System.out.println("Portnum must be an integer; " + args[0]
+            System.err.println("Portnum must be an integer; " + args[0]
                 + " is not an int!");
+            System.exit(-1);
         }
 
         /* construct Registry */
@@ -577,6 +583,6 @@ public class Registry extends Node implements Runnable {
         /* run things */
         registry.run();
 
-        System.exit(0);
+        registry.cleanUpAndExit();
     }
 }
