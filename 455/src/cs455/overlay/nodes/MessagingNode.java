@@ -79,7 +79,7 @@ public class MessagingNode extends Node implements Runnable {
     }
 
     @Override
-    public synchronized void handleMessage(byte[] messageBytes)
+    public synchronized void handleMessage(byte[] messageBytes, String senderHostName)
         throws IOException {
         Message message = MessageFactory.createMessage(messageBytes);
         switch (message.getType()) {
@@ -450,12 +450,6 @@ public class MessagingNode extends Node implements Runnable {
 
         /* handle CLI input */
         handleCommandLine();
-
-        /* deregister and clean up */
-
-        // TODO: nicer exiting
-        // TODO: how to handle failed deregistration? should probably allow user
-        // to try again, and/or re-enter CLI loop
     }
 
     /**
@@ -554,7 +548,13 @@ public class MessagingNode extends Node implements Runnable {
      * overlay.
      */
     private void listPaths() {
-        System.out.println(pathCalculator.getAllPathStrings());
+        if (pathCalculator == null) {
+            System.out.println("Haven't received a link weights list yet;"
+                + " can't do that. (Silly you, did you forget to send the"
+                + " command?)");
+        } else {
+            System.out.println(pathCalculator.getAllPathStrings());
+        }
     }
 
     /**

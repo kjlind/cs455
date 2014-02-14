@@ -51,7 +51,8 @@ public abstract class Node {
      * @throws IOException if any I/O error occurs while attempting to interpret
      * or handle the message
      */
-    public abstract void handleMessage(byte[] messageBytes) throws IOException;
+    public abstract void handleMessage(byte[] messageBytes,
+        String senderHostName) throws IOException;
 
     /**
      * @return the port number on which this registry is listening for

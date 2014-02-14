@@ -69,8 +69,8 @@ public class Registry extends Node implements Runnable {
     }
 
     @Override
-    public synchronized void handleMessage(byte[] messageBytes)
-        throws IOException {
+    public synchronized void handleMessage(byte[] messageBytes,
+        String senderHostName) throws IOException {
         Message message = MessageFactory.createMessage(messageBytes);
         switch (message.getType()) {
         case Protocol.REGISTER_REQUEST:
@@ -78,22 +78,16 @@ public class Registry extends Node implements Runnable {
                 System.out.println("\nRegistry: It's a register request!!1!!");
                 System.out.println(message);
             }
-            // TODO: verify somewhere that IP in message matches sender...
-
             RegisterRequest request = (RegisterRequest) message;
-            handleRegisterRequest(request);
+            handleRegisterRequest(request, senderHostName);
             break;
         case Protocol.DEREGISTER_REQUEST:
-            // TODO: verify somewhere that IP in message matches sender...
-
             if (DEBUG) {
                 System.out.println("\nRegistry: Deregister request :( :( :(");
                 System.out.println(message);
             }
-
             DeregisterRequest derequest = (DeregisterRequest) message;
-            handleDeregisterRequest(derequest);
-
+            handleDeregisterRequest(derequest, senderHostName);
             break;
         case Protocol.TASK_COMPLETE:
             if (DEBUG) {
@@ -116,7 +110,6 @@ public class Registry extends Node implements Runnable {
                 System.out.println("\nRegistry: CONNNNNNNECTION info!");
                 System.out.println(message);
             }
-
             ConnectionInformation info = (ConnectionInformation) message;
             handleConnectionInformation(info);
             break;
@@ -132,15 +125,20 @@ public class Registry extends Node implements Runnable {
      * registered, registers the node. Either way, sends a register response to
      * the messaging node indicating either success or failure.
      */
-    private void handleRegisterRequest(RegisterRequest request) {
+    private void handleRegisterRequest(RegisterRequest request,
+        String senderHostName) {
         NodeInfo info = new NodeInfo(request.getIPAddress(), request.getPort());
         System.out.println("Got a register request from " + info + ".");
 
-        boolean registered = registeredNodes.contains(info);
-
         boolean success;
         String responseString;
-        if (!registered) {
+        if (!info.getHostName().equals(senderHostName)) {
+            success = false;
+            responseString = "Registration failed; the IP in the request did"
+                + " not match the IP of the sender";
+            /* cheap hack way to make retrieving sender below probably work */
+            info = new NodeInfo(senderHostName, request.getPort());
+        } else if (!registeredNodes.contains(info)) {
             if (DEBUG) {
                 System.out.println("Registry: messaging node at " + info
                     + " was not registered; registering now");
@@ -179,16 +177,21 @@ public class Registry extends Node implements Runnable {
      * registered, deregisters the node. Either way, sends a deregister response
      * to the messaging node indicating either success or failure.
      */
-    private void handleDeregisterRequest(DeregisterRequest derequest) {
+    private void handleDeregisterRequest(DeregisterRequest derequest,
+        String senderHostName) {
         NodeInfo info = new NodeInfo(derequest.getIPAddress(),
             derequest.getPort());
         System.out.println("Got a deregister request from " + info + ".");
 
-        boolean registered = registeredNodes.contains(info);
-
         boolean success;
         String responseString;
-        if (registered) {
+        if (!info.getHostName().equals(senderHostName)) {
+            success = false;
+            responseString = "Registration failed; the IP in the request did"
+                + " not match the IP of the sender";
+            /* cheap hack way to make retrieving sender below probably work */
+            info = new NodeInfo(senderHostName, derequest.getPort());
+        } else if (registeredNodes.contains(info)) {
             if (DEBUG) {
                 System.out.println("Registry: messaging node at " + info
                     + " was registered; deregistering now");
@@ -439,8 +442,8 @@ public class Registry extends Node implements Runnable {
         System.out.println("nodes: list info about all" + " registered nodes");
         System.out.println("weights: list info about all links currently"
             + " set up in the overlay");
-        System.out.println("setup: determine links which should be"
-            + " formed and send messaging nodes list messages to nodes");
+        System.out.println("setup numConnections: determine links which should"
+            + " be formed and send messaging nodes list messages to nodes");
         System.out.println("send-weights: send a link weights"
             + " message to all registered nodes");
         System.out.println("exit: quit the program");

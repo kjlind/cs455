@@ -62,21 +62,18 @@ public class ReceiverThread extends Thread {
             e1.printStackTrace();
         }
         // TODO: change to while(socket.isConnected())?
+        String senderHostName = getSenderHostName();
         while (true) {
             try {
                 byte[] data = receiveBytes();
-                // TODO: pass the HostName of the sender along with the
-                // message? (so that registry esp. can know who the message was
-                // from and react accordingly)
-                targetedNode.handleMessage(data);
+                targetedNode.handleMessage(data, senderHostName);
             } catch (SocketException e) {
-                System.err.println("Socket exception while trying to read"
-                    + " data:");
-                e.printStackTrace();
+                System.out.println("SocketException; connection with "
+                    + getSenderHostName() + " closed.");
                 return;
             } catch (EOFException e) {
-                System.err.println("EOF exception while trying to read data: ");
-                e.printStackTrace();
+                System.out.println("EOFException; connection with "
+                    + getSenderHostName() + " closed.");
                 return;
             } catch (IOException e) {
                 System.err.println("I/O error while trying to read data: ");
