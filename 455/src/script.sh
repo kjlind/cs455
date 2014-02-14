@@ -15,7 +15,7 @@ echo''
 #set up the registry
 echo 'sshing to '$REGISTRY
 echo 'setting up the registry'
-gnome-terminal -t 'registry - '$REGISTRY -x bash -c "ssh -t $REGISTRY 'cd ~/git/cs455/455/src; java cs455.overlay.nodes.Registry $PORTNUM; bash'" &
+gnome-terminal -t 'registry - '$REGISTRY -x bash -c "ssh -t $REGISTRY 'cd ~/git/cs455/455/src; java cs455.overlay.node.Registry $PORTNUM; bash'" &
 echo '---------------------------'
 echo''
 
@@ -27,5 +27,5 @@ for i in `cat ./comps`
 do
 	echo 'sshing to '${i}
 	echo 'setting up a messaging node'
-	gnome-terminal -t ${i} -x bash -c "ssh -t ${i} 'cd ~/git/cs455/455/src; java cs455.overlay.nodes.MessagingNode $REGISTRY $PORTNUM; bash'" &
+	gnome-terminal -t ${i} -x bash -c "ssh -t ${i} 'cd ~/git/cs455/455/src; java cs455.overlay.node.MessagingNode $REGISTRY $PORTNUM; bash'" &
 done
