@@ -1,0 +1,136 @@
+Running the Program:
+
+(Running the program is exactly as specified in the assignment description.)
+
+Issue a 'make all' from above the cs455 package.
+Start the registry with the command: 'java cs455.overlay.node.Registry portnum.
+Start each messaging node with the command:
+'java cs455.overlay.node.MessagingNode registry-host registry-port'.
+
+Commands:
+
+A number of commands may be issued while the program is running.
+
+At the registry:
+	'list-messaging-nodes': lists information (hostname and its server port
+	number) about all currently registered nodes
+
+	'list-weights': lists information about all links currently set up in the overlay
+
+	'setup-overlay numConnections': determines links which should be formed and
+	sends messaging nodes list messages to nodes (this command currently assumes
+	10 nodes and 4 connections per node, since we were guaranteed this is how it
+	will be tested; numConnections must still be specified regardless)
+
+	'send-overlay-link-weights': sends a link weights message to all registered nodes
+
+	'start': instructs messaging nodes to begin rounds
+
+	'exit': closes connections to other nodes and quits the program
+
+	'help': displays a help message detailing commands
+
+At a messaging node:
+	'print-shortest-path': prints the shortest paths which have been calculated to
+	all other nodes in the overlay
+
+	'list-peers': prints out node information for all currently maintained
+	connections to other nodes
+
+	'exit-overlay': deregisters from the overlay and quits
+
+	'help': displays a help message detailing commands
+	
+	
+Summary of classes by package (see individual .java files for further documentation):
+
+cs455.overlay.dijkstra
+	Edge - represents an edge in a graph
+	Vertex - represents a vertex in a graph
+	Graph - encapsulates all edges and vertices forming a graph
+	ShortestPath - given a graph and a source vertex, calculates the shortest
+		path to every other vertex using Dijkstra's algorithm
+	Dijkstra - an adapter between the ShortestPath class and the MessagingNode
+		class; converts back and forth between links/edges & nodes/vertices, and
+		calls the appropriate methods of a shortest path object 
+		
+cs455.overlay.node
+	Node - an abstract class representing a basic node which has a server on which
+		it listens for incoming connections and facilities to send messages to
+		other nodes; contains common functionality for the MessagingNode and
+		Registry, and specifies an abstract handleMessage() method
+	Registry - the registry as specified in the assignment description; extends
+		Node
+	RegistryCommand - contains static String fields specifying all commands
+		which the registry understands
+	MessagingNode - the messaging node as specified in the assignment description;
+		extends Node
+	MessagingNodeCommand - contains static String fields specifying all commands
+		which the messaging nodes understand
+	RandomPayloadSender - implements the Runnable interface; a helper class for
+		MessagingNode which handles the creation and sending of payloads during
+		the rounds
+		
+cs455.overlay.tcp
+	ServerThread - maintains a server socket which handle incoming connections by
+		passing the socket to a ReceiverThread and a Sender; has an associated
+		'owner' node which it passes to all receiver threads created
+	Client - initiates new connections to other nodes and sets up a ReceiverThread
+		and Sender associated with the connection; has an 'owner' node which it
+		passes to the receiver thread
+	ReceiverThread - has a socket on which it listens for messages and a 'targeted'
+		node; forwards all messages received to this node via its handleMessage() method
+	Sender - has a socket to which it publishes messages when its sendBytes() method
+		is called, and a name which indicates which node it is connected to (the
+		receiver of the published bytes)
+		
+cs455.overlay.wireformats
+	Message - an interface which all messages sent by nodes must follow; declares
+		a getType() method and a getBytes() method
+	Protocol - contains static integer fields identifying all currently existing
+		message types
+		
+	All classes implementing message:
+	RegisterRequest - contains information associated with a request from a messaging
+		node to register with the registry
+	RegisterResponse - contains information associated with a response to a register
+		request; sent from the registry to the messaging node which originated the
+		register request
+	DeregisterRequest - contains information associated with a request from a messaging
+		node to deregister from the registry
+	DeregisterResponse - contains information associated with a response to a deregister
+		request; sent from the registry to the messaging node which originated the
+		deregister request
+	MessagingNodesList - contains a list of all peer nodes to which a messaging node
+		should form connections; sent from the registry to messaging nodes upon
+		initiating setup of the overlay
+	LinkWeights - contains a list of information about all links currently in the
+		overlay; sent from the registry to messaging nodes
+	TaskInitiate - sent from the registry to messaging nodes to instruct them to
+		begin rounds of sending random payloads
+	RandomPayload - contains the actual payload and the routing plan for messages
+		sent between messaging nodes during rounds
+	TaskComplete - sent from messaging nodes to the registry to indicate that they
+		have finished sending random payloads
+	PullTrafficSummary - sent from the registry to messaging nodes to instruct them
+		to send a traffic summary message
+	TrafficSummary - contains a summary of traffic at a given messaging node, including
+		number of random payloads sent, received, and forwarded, etc; sent from
+		the messaging nodes to the registry
+	ConnectionInformation - sent from a node which has just initiated a connection
+		to the other node; contains information (hostname, current port on which
+		the nodes are communicating, and the server port on which the initiating
+		node listens for connections) which will facilitate the setup of the overlay
+		by ensuring that each node has a system-wide known name (hostname:serverPort)
+		
+cs455.overlay.util
+	NodeInfo - encapsulates information about a node: its hostname and server port
+		number; has a getBytes() method and a constructor taking a byte array for
+		convenience when sending certain message types
+	LinkInfo - encapsulate information about a link: a NodeInfo object for each
+		node involved in the link, and the weight associated with the link; has
+		a getBytes() method and a constructor taking a byte array for convenience
+		when sending certain message types
+	MessageFactory - constructs and returns the right type of message given a byte
+		array
+

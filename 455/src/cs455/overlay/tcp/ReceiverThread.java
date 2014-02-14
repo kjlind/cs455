@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 
-import cs455.overlay.nodes.Node;
+import cs455.overlay.node.Node;
 
 /**
  * A receiver has a socket over which it listens for incoming messages. The

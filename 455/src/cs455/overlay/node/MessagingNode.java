@@ -1,4 +1,4 @@
-package cs455.overlay.nodes;
+package cs455.overlay.node;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -8,13 +8,13 @@ import java.util.Scanner;
 import cs455.overlay.dijkstra.Dijkstra;
 import cs455.overlay.tcp.Client;
 import cs455.overlay.tcp.Sender;
+import cs455.overlay.util.MessageFactory;
 import cs455.overlay.util.NodeInfo;
 import cs455.overlay.wireformats.ConnectionInformation;
 import cs455.overlay.wireformats.DeregisterRequest;
 import cs455.overlay.wireformats.DeregisterResponse;
 import cs455.overlay.wireformats.LinkWeights;
 import cs455.overlay.wireformats.Message;
-import cs455.overlay.wireformats.MessageFactory;
 import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RandomPayload;
@@ -79,8 +79,8 @@ public class MessagingNode extends Node implements Runnable {
     }
 
     @Override
-    public synchronized void handleMessage(byte[] messageBytes, String senderHostName)
-        throws IOException {
+    public synchronized void handleMessage(byte[] messageBytes,
+        String senderHostName) throws IOException {
         Message message = MessageFactory.createMessage(messageBytes);
         switch (message.getType()) {
         case Protocol.REGISTER_RESPONSE:
@@ -534,13 +534,16 @@ public class MessagingNode extends Node implements Runnable {
      * Prints out all currently valid commands.
      */
     private void helpMessage() {
-        System.out.println("print-shortest-path: print the shortests paths"
-            + " which have been calculated to other nodes in the overlay");
-        System.out.println("list-peers: print out node info for all currently"
-            + " maintained connections to other nodes");
-        System.out.println("exit-overlay: deregister from the overlay"
-            + " and quit");
-        System.out.println("help: display this help message");
+        System.out.println(MessagingNodeCommand.LIST_PATHS
+            + ": print the shortest paths which have been calculated to other"
+            + " nodes in the overlay");
+        System.out.println(MessagingNodeCommand.LIST_PEERS
+            + ": print out node info for all currently maintained connections"
+            + " to other nodes");
+        System.out.println(MessagingNodeCommand.EXIT
+            + ": deregister from the overlay and quit");
+        System.out.println(MessagingNodeCommand.HELP
+            + ": display this help message");
     }
 
     /**

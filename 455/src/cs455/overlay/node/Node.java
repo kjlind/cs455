@@ -1,4 +1,4 @@
-package cs455.overlay.nodes;
+package cs455.overlay.node;
 
 import java.io.IOException;
 import java.util.Enumeration;

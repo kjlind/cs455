@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import cs455.overlay.nodes.Node;
+import cs455.overlay.node.Node;
 import cs455.overlay.wireformats.ConnectionInformation;
 
 /**

@@ -1,4 +1,4 @@
-package cs455.overlay.nodes;
+package cs455.overlay.node;
 
 /**
  * MessagingNodeCommand contains static String fields which designate the values

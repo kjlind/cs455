@@ -1,4 +1,4 @@
-package cs455.overlay.nodes;
+package cs455.overlay.node;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,13 +9,13 @@ import java.util.Scanner;
 
 import cs455.overlay.tcp.Sender;
 import cs455.overlay.util.LinkInfo;
+import cs455.overlay.util.MessageFactory;
 import cs455.overlay.util.NodeInfo;
 import cs455.overlay.wireformats.ConnectionInformation;
 import cs455.overlay.wireformats.DeregisterRequest;
 import cs455.overlay.wireformats.DeregisterResponse;
 import cs455.overlay.wireformats.LinkWeights;
 import cs455.overlay.wireformats.Message;
-import cs455.overlay.wireformats.MessageFactory;
 import cs455.overlay.wireformats.MessagingNodesList;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.PullTrafficSummary;
@@ -439,16 +439,20 @@ public class Registry extends Node implements Runnable {
      * Prints out all currently valid commands.
      */
     private void helpMessage() {
-        System.out.println("nodes: list info about all" + " registered nodes");
-        System.out.println("weights: list info about all links currently"
-            + " set up in the overlay");
-        System.out.println("setup numConnections: determine links which should"
-            + " be formed and send messaging nodes list messages to nodes");
-        System.out.println("send-weights: send a link weights"
-            + " message to all registered nodes");
-        System.out.println("exit: quit the program");
-        System.out.println("start: instruct messaging nodes to begin rounds");
-        System.out.println("help: display this help message");
+        System.out.println(RegistryCommand.LIST_NODES + ": list info about all"
+            + " registered nodes");
+        System.out.println(RegistryCommand.LIST_WEIGHTS
+            + ": list info about all links currently set up in the overlay");
+        System.out.println(RegistryCommand.SETUP_OVERLAY
+            + " numConnections: determine links which should be formed and"
+            + " send messaging nodes list messages to nodes");
+        System.out.println(RegistryCommand.SEND_WEIGHTS
+            + ": send a link weights message to all registered nodes");
+        System.out.println(RegistryCommand.START
+            + ": instruct messaging nodes to begin rounds");
+        System.out.println(RegistryCommand.EXIT + ": quit the program");
+        System.out.println(RegistryCommand.HELP + ": display this help"
+            + " message");
     }
 
     /**

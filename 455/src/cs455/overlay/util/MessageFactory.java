@@ -1,9 +1,24 @@
-package cs455.overlay.wireformats;
+package cs455.overlay.util;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+
+import cs455.overlay.wireformats.ConnectionInformation;
+import cs455.overlay.wireformats.DeregisterRequest;
+import cs455.overlay.wireformats.DeregisterResponse;
+import cs455.overlay.wireformats.LinkWeights;
+import cs455.overlay.wireformats.Message;
+import cs455.overlay.wireformats.MessagingNodesList;
+import cs455.overlay.wireformats.Protocol;
+import cs455.overlay.wireformats.PullTrafficSummary;
+import cs455.overlay.wireformats.RandomPayload;
+import cs455.overlay.wireformats.RegisterRequest;
+import cs455.overlay.wireformats.RegisterResponse;
+import cs455.overlay.wireformats.TaskComplete;
+import cs455.overlay.wireformats.TaskInitiate;
+import cs455.overlay.wireformats.TrafficSummary;
 
 /**
  * MessageFactory consists of a static method to create a new Message instance

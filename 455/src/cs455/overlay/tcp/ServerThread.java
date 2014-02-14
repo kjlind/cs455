@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import cs455.overlay.nodes.Node;
+import cs455.overlay.node.Node;
 
 /**
  * The Server listens for incoming connections over a ServerSocket. It accepts
