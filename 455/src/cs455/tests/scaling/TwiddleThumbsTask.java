@@ -16,6 +16,8 @@ public class TwiddleThumbsTask implements Task {
      */
     @Override
     public void run() {
+        System.out.println("Running a " + getType() + " in thread "
+            + Thread.currentThread().getId());
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -26,7 +28,7 @@ public class TwiddleThumbsTask implements Task {
 
     @Override
     public String getType() {
-        return "Twiddle Thumbs";
+        return "Twiddle Thumbs Task";
     }
 
 }
