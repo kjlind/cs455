@@ -16,7 +16,7 @@ import cs455.scaling.task.Task;
 public class ThreadpoolManager {
     private static final int DEFAULT_NUM_THREADS = 10;
 
-    private WorkerThread[] pool;
+    private Thread[] pool;
     private LinkedList<Task> taskQueue;
 
     /**
@@ -32,9 +32,9 @@ public class ThreadpoolManager {
         if (numThreads <= 0) {
             numThreads = DEFAULT_NUM_THREADS;
         }
-        pool = new WorkerThread[numThreads];
+        pool = new Thread[numThreads];
         for (int i = 0; i < numThreads; ++i) {
-            pool[i] = new WorkerThread(taskQueue);
+            pool[i] = new Thread(new Worker(taskQueue));
         }
     }
 
@@ -55,7 +55,7 @@ public class ThreadpoolManager {
      * Starts all threads in the pool.
      */
     private void startThreads() {
-        for (WorkerThread nextThread : pool) {
+        for (Thread nextThread : pool) {
             nextThread.start();
         }
     }

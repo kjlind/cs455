@@ -5,21 +5,21 @@ import java.util.LinkedList;
 import cs455.scaling.task.Task;
 
 /**
- * A WorkerThread, when run, waits for tasks to be available on the provided
+ * A Worker, when run, waits for tasks to be available on the provided
  * queue. When a task is available, it removes the task from the queue and runs
  * it.
  * 
  * @author Kira Lindburg
  * @date Feb 23, 2014
  */
-public class WorkerThread extends Thread {
+public class Worker implements Runnable {
     private LinkedList<Task> taskQueue;
 
     /**
      * Creates a new worker thread which will handle tasks from the provided
      * queue.
      */
-    public WorkerThread(LinkedList<Task> taskQueue) {
+    public Worker(LinkedList<Task> taskQueue) {
         this.taskQueue = taskQueue;
     }
 
@@ -29,7 +29,7 @@ public class WorkerThread extends Thread {
      */
     @Override
     public void run() {
-        while (!interrupted()) {
+        while (!Thread.interrupted()) {
             Task nextTask;
             synchronized (taskQueue) {
                 while (taskQueue.isEmpty()) {

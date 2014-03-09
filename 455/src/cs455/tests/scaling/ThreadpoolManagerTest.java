@@ -9,7 +9,7 @@ import cs455.scaling.threadpool.ThreadpoolManager;
 
 public class ThreadpoolManagerTest {
     private ThreadpoolManager mangey;
-    private int numThreads = 10;
+    private int numThreads = 5;
 
     @Before
     public void setUp() throws Exception {
