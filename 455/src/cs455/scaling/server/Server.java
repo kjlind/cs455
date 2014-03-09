@@ -143,6 +143,13 @@ public class Server {
      * @param key the key which is ready for reading some data
      */
     private void read(SelectionKey key) {
+        SocketChannel channel = (SocketChannel)key.channel();
+        try {
+            System.out.println("new read task " + channel.getRemoteAddress());
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         threadpool.addTask(new ReadTask(key, PACKET_SIZE));
     }
 

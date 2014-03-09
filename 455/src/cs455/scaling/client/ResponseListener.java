@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
@@ -19,11 +17,11 @@ public class ResponseListener implements Runnable {
     private static final int CHECKSUM_SIZE = 20;
 
     private SocketChannel channel;
-    private LinkedList<byte[]> pendingHashes;
+    private LinkedList<BigInteger> pendingHashes;
 
     public ResponseListener(SocketChannel channel) {
         this.channel = channel;
-        pendingHashes = new LinkedList<byte[]>();
+        pendingHashes = new LinkedList<BigInteger>();
     }
 
     /**
@@ -31,12 +29,12 @@ public class ResponseListener implements Runnable {
      * listener.
      */
     public void addHash(byte[] hash) {
+        BigInteger hashInt = new BigInteger(1, hash);
         synchronized (pendingHashes) {
-            BigInteger hashInt = new BigInteger(1, hash);
-            String hashStr = hashInt.toString(16);
-            System.out.println("added " + hashStr);
-            pendingHashes.add(hash);
+            pendingHashes.add(hashInt);
         }
+        String hashStr = hashInt.toString(16);
+        System.out.println("added " + hashStr);
     }
 
     @Override
@@ -62,33 +60,14 @@ public class ResponseListener implements Runnable {
             System.out.println("Got " + hashStr);
 
             // find the hash in the pending hashes and remove it
+            boolean yay;
             synchronized (pendingHashes) {
-                Iterator<byte[]> iter = pendingHashes.iterator();
-                byte[] nextHash = null;
-                while (!Arrays.equals(data, nextHash) && iter.hasNext()) {
-                    nextHash = iter.next();
-                }
-                if (!Arrays.equals(data, nextHash)) {
-                    System.out.println("Got a hash which wasn't in the list!");
-                } else {
-                    System.out.println("-------before----------");
-                    for (byte[] hahsh : pendingHashes) {
-                        String hag = new BigInteger(1, hahsh).toString(16);
-                        System.out.println(hag);
-                    }
-                    System.out.println("-----------------");
-
-                    System.out.println("Received and removed " + hashStr);
-                    pendingHashes.remove(nextHash);
-
-                    System.out.println("-------after----------");
-                    for (byte[] hahsh : pendingHashes) {
-                        String hag = new BigInteger(1, hahsh).toString(16);
-                        System.out.println(hag);
-                    }
-                    System.out.println("-----------------");
-
-                }
+                yay = pendingHashes.remove(hashInt);
+            }
+            if (yay) {
+                System.out.println("Found and removed " + hashStr);
+            } else {
+                System.out.println("Hash not found in list!");
             }
         }
     }
