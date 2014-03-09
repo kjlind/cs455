@@ -2,17 +2,15 @@ package cs455.scaling.server;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
+import cs455.scaling.task.ReadTask;
+import cs455.scaling.task.WriteTask;
 import cs455.scaling.threadpool.ThreadpoolManager;
 
 /**
@@ -107,21 +105,11 @@ public class Server {
                 }
 
                 if (nextKey.isReadable()) {
-                    try {
-                        read(nextKey);
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
+                    read(nextKey);
                 }
 
                 if (nextKey.isWritable()) {
-                    try {
-                        write(nextKey);
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
+                    write(nextKey);
                 }
             }
         }
@@ -153,35 +141,9 @@ public class Server {
      * write to this channel).
      * 
      * @param key the key which is ready for reading some data
-     * @throws IOException if an IO error occurs
      */
-    private void read(SelectionKey key) throws IOException {
-        // read the data
-        SocketChannel channel = (SocketChannel) key.channel();
-        ByteBuffer buff = ByteBuffer.allocate(PACKET_SIZE);
-        int read = 0;
-        while (buff.hasRemaining() && read != -1) {
-            read = channel.read(buff);
-        }
-        // TODO: handle disconnects and IO errors
-        buff.flip();
-        byte[] data = new byte[PACKET_SIZE];
-        buff.get(data);
-        System.out.println("Received data " + data + " from "
-            + channel.getRemoteAddress());
-
-        // calculate and store checksum
-        MessageDigest dig = null;
-        try {
-            dig = MessageDigest.getInstance("SHA1");
-        } catch (NoSuchAlgorithmException e) {
-        }
-        byte[] hashbrowns = dig.digest(data);
-        @SuppressWarnings("unchecked")
-        List<byte[]> pendingWrites = (List<byte[]>) key.attachment();
-        pendingWrites.add(hashbrowns);
-
-        key.interestOps(SelectionKey.OP_WRITE);
+    private void read(SelectionKey key) {
+        threadpool.addTask(new ReadTask(key, PACKET_SIZE));
     }
 
     /**
@@ -189,20 +151,9 @@ public class Server {
      * channel.
      * 
      * @param key the key which is ready for writing some data
-     * @throws IOException if an IO error occurs
      */
-    private void write(SelectionKey key) throws IOException {
-        SocketChannel channel = (SocketChannel) key.channel();
-        @SuppressWarnings("unchecked")
-        List<byte[]> pendingWrites = (List<byte[]>) key.attachment();
-        for (byte[] nextData : pendingWrites) {
-            ByteBuffer buff = ByteBuffer.wrap(nextData);
-            channel.write(buff);
-            System.out.println("Wrote some data to "
-                + channel.getRemoteAddress());
-        }
-        pendingWrites.clear();
-        key.interestOps(SelectionKey.OP_READ);
+    private void write(SelectionKey key) {
+        threadpool.addTask(new WriteTask(key));
     }
 
     public static void main(String[] args) {

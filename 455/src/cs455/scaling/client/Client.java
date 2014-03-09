@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -26,6 +28,8 @@ public class Client {
     private SocketChannel channel;
     private int messageRate;
 
+    private ResponseListener listener;
+
     /**
      * Creates a default client which is not yet connected to a server. When
      * started, the client will send packets to a server at the specified rate.
@@ -35,13 +39,14 @@ public class Client {
      */
     public Client(int messageRate) throws IOException {
         channel = SocketChannel.open();
+        listener = new ResponseListener(channel);
         this.messageRate = messageRate;
     }
 
     /**
      * Attempts to connect to a host at the specified IP address and port
-     * number. This method should be called before attempting to start the
-     * client.
+     * number. Additionally, starts the response listener. This method should be
+     * called before attempting to start the client.
      * 
      * @param hostIP the IP address of the server
      * @param hostPort the port number of the server
@@ -49,6 +54,7 @@ public class Client {
      */
     public void connect(String hostIP, int hostPort) throws IOException {
         channel.connect(new InetSocketAddress(hostIP, hostPort));
+        new Thread(listener).start();
     }
 
     /**
@@ -95,6 +101,15 @@ public class Client {
         while (buff.hasRemaining()) {
             channel.write(buff);
         }
+
+        // compute and store hash sum
+        MessageDigest dig = null;
+        try {
+            dig = MessageDigest.getInstance("SHA1");
+        } catch (NoSuchAlgorithmException e) {
+        }
+        byte[] hashbrowns = dig.digest(data);
+        listener.addHash(hashbrowns);
     }
 
     public static void main(String[] args) {
