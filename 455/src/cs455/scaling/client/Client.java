@@ -137,6 +137,9 @@ public class Client {
         client.start();
     }
 
+    /**
+     * Prints a usage message and exits.
+     */
     private static void usage() {
         System.err.println("Usage: cs455.scaling.client.Client serverIP"
             + " serverPort messageRate");
