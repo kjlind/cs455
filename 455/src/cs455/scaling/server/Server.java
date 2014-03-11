@@ -128,8 +128,7 @@ public class Server {
         ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
         SocketChannel channel = serverChannel.accept();
         channel.configureBlocking(false);
-        channel.register(selector, SelectionKey.OP_READ,
-            new ArrayList<byte[]>());
+        channel.register(selector, SelectionKey.OP_READ, new ChannelStatus());
         System.out.println("Accepted connection from "
             + channel.getRemoteAddress());
     }
@@ -143,14 +142,18 @@ public class Server {
      * @param key the key which is ready for reading some data
      */
     private void read(SelectionKey key) {
-        SocketChannel channel = (SocketChannel)key.channel();
-        try {
-            System.out.println("new read task " + channel.getRemoteAddress());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        ChannelStatus status = (ChannelStatus) key.attachment();
+        if (!status.reading()) {
+            SocketChannel channel = (SocketChannel) key.channel();
+            try {
+                System.out.println("new read task "
+                    + channel.getRemoteAddress());
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            threadpool.addTask(new ReadTask(key, PACKET_SIZE));
         }
-        threadpool.addTask(new ReadTask(key, PACKET_SIZE));
     }
 
     /**
@@ -160,7 +163,10 @@ public class Server {
      * @param key the key which is ready for writing some data
      */
     private void write(SelectionKey key) {
-        threadpool.addTask(new WriteTask(key));
+        ChannelStatus status = (ChannelStatus) key.attachment();
+        if (!status.writing()) {
+            threadpool.addTask(new WriteTask(key));
+        }
     }
 
     public static void main(String[] args) {

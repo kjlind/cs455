@@ -1,3 +1,4 @@
 /bin
 /Lindburg_Kira_ASG1.tar
 .settings/org.eclipse.php.core.prefs
+*.class

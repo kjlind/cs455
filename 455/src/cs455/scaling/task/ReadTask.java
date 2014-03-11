@@ -6,7 +6,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
+
+import cs455.scaling.server.ChannelStatus;
 
 /**
  * A ReadTask reads the specified number of bytes from the provided key,
@@ -24,6 +25,9 @@ public class ReadTask implements Task {
     public ReadTask(SelectionKey key, int packetSize) {
         this.key = key;
         this.packetSize = packetSize;
+
+        ChannelStatus status = (ChannelStatus) key.attachment();
+        status.setReading(true);
     }
 
     @Override
@@ -58,13 +62,11 @@ public class ReadTask implements Task {
         } catch (NoSuchAlgorithmException e) {
         }
         byte[] hashbrowns = dig.digest(data);
-        @SuppressWarnings("unchecked")
-        List<byte[]> pendingWrites = (List<byte[]>) key.attachment();
-        synchronized (pendingWrites) {
-            pendingWrites.add(hashbrowns);
-        }
+        ChannelStatus status = (ChannelStatus) key.attachment();
+        status.addPendingWrite(hashbrowns);
 
         key.interestOps(SelectionKey.OP_WRITE);
+        status.setReading(false);
     }
 
     @Override
