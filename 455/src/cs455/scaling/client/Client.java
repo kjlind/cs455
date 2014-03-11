@@ -92,6 +92,15 @@ public class Client {
         byte[] data = new byte[PACKET_SIZE];
         ThreadLocalRandom.current().nextBytes(data);
 
+        // compute and store hash sum
+        MessageDigest dig = null;
+        try {
+            dig = MessageDigest.getInstance("SHA1");
+        } catch (NoSuchAlgorithmException e) {
+        }
+        byte[] hashbrowns = dig.digest(data);
+        listener.addHash(hashbrowns);
+
         // put data into buffer for sending
         ByteBuffer buff = ByteBuffer.allocate(PACKET_SIZE);
         buff.put(data);
@@ -101,15 +110,6 @@ public class Client {
         while (buff.hasRemaining()) {
             channel.write(buff);
         }
-
-        // compute and store hash sum
-        MessageDigest dig = null;
-        try {
-            dig = MessageDigest.getInstance("SHA1");
-        } catch (NoSuchAlgorithmException e) {
-        }
-        byte[] hashbrowns = dig.digest(data);
-        listener.addHash(hashbrowns);
     }
 
     public static void main(String[] args) {
