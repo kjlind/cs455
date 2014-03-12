@@ -1,0 +1,46 @@
+CS455 Woes (because you know it's haiku worthy)
+
+I'm at my wit's end:
+Concurrency bugs abound...
+Synchronize it all!
+
+-------------------------------------------------------------------------------------
+Running the Program:
+
+(Running the program is exactly as specified in the assignment description.)
+
+Issue a 'make all' from above the cs455 package.
+Start the server with the command: 'java cs455.overlay.node.Registry portnum.
+Start each client with the command:
+'java cs455.scaling.client.Client serverIP serverPort messageRate'.
+	
+Summary of classes by package (see individual .java files for further documentation):
+
+cs455.scaling.client
+	Client - initiates a connection to a server and sends messages to the server
+		at the specified rate (messages/second)
+	ResponseListener - tracks the hash codes of messages which have been sent so
+		far, listens for responses from the server, and removes the hashes which
+		have been acknowledged; each client has a response listener
+		
+cs455.scaling.server
+	Server - accepts connections from clients, listens for messages from them,
+		and acknowledges the messages by sending the SHA-1 hash to the client;
+		uses a threadpool manager to do so
+	ChannelStatus - encapsulates information about a particular channel, including
+		pending outgoing messages and whether someone is currently in the process
+		of reading or writing to the channel
+		
+cs455.scaling.task
+	Task - interface for a task which can be handled by a worker in the threadpool;
+		requires a run() method
+	ReadTask - task for reading a single 8KB message from a channel; additionally
+		calculates the hash for the message and adds it to the channel status for
+		the channel as an outgoing message
+	WriteTask - task for writing all outgoing messages to a channel
+	
+cs455.scaling.threadpool
+	ThreadpoolManager - maintains a specified number of threads in a pool and a
+		queue of pending tasks to be completed
+	Worker - waits until a task is available in the threadpool manager, then runs
+		the task and returns to waiting
