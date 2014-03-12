@@ -28,13 +28,16 @@ public class WriteTask implements Task {
             ByteBuffer buff = ByteBuffer.wrap(nextData);
             try {
                 channel.write(buff);
+
+                // print a very exciting message
                 BigInteger hashInt = new BigInteger(1, nextData);
                 String hashStr = hashInt.toString(16);
-                System.out.println("Wrote hash " + hashStr + " to "
-                    + channel.getRemoteAddress());
+                String clientName = channel.socket().getInetAddress()
+                    .getHostName();
+                int clientPort = channel.socket().getPort();
+                System.out.println("Sent " + hashStr + " to " + clientName
+                    + ":" + clientPort);
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             }
         }
 

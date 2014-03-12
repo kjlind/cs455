@@ -6,7 +6,6 @@
 SERVER="kitaro"
 PORTNUM=63094
 NUMTHREADS=10
-RATE=3
 
 #recompile in case there are any changes
 echo 'compiling things'

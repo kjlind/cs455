@@ -33,8 +33,6 @@ public class ResponseListener implements Runnable {
         synchronized (pendingHashes) {
             pendingHashes.add(hashInt);
         }
-        String hashStr = hashInt.toString(16);
-        System.out.println("added " + hashStr);
     }
 
     @Override
@@ -47,27 +45,25 @@ public class ResponseListener implements Runnable {
                 try {
                     read = channel.read(buff);
                 } catch (IOException e) {
-                    System.err.println("IO error while reading");
-                    e.printStackTrace();
                 }
             }
             // TODO: handle disconnects and IO errors
             buff.flip();
             byte[] data = new byte[CHECKSUM_SIZE];
             buff.get(data);
-            BigInteger hashInt = new BigInteger(1, data);
-            String hashStr = hashInt.toString(16);
-            System.out.println("Got " + hashStr);
 
             // find the hash in the pending hashes and remove it
+            BigInteger hashInt = new BigInteger(1, data);
+            String hashStr = hashInt.toString(16);
             boolean yay;
             synchronized (pendingHashes) {
                 yay = pendingHashes.remove(hashInt);
             }
             if (yay) {
-                System.out.println("Found and removed " + hashStr);
+                System.out.println("Received and removed " + hashStr);
             } else {
-                System.out.println("Hash not found in list!");
+                System.out.println("!!!!!!!! Received hash not found in list: "
+                    + hashStr);
             }
         }
     }

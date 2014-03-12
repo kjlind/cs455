@@ -6,7 +6,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import cs455.scaling.task.ReadTask;
@@ -129,8 +128,12 @@ public class Server {
         SocketChannel channel = serverChannel.accept();
         channel.configureBlocking(false);
         channel.register(selector, SelectionKey.OP_READ, new ChannelStatus());
-        System.out.println("Accepted connection from "
-            + channel.getRemoteAddress());
+
+        // print a cute message letting people know what's up
+        String clientName = channel.socket().getInetAddress().getHostName();
+        int clientPort = channel.socket().getPort();
+        System.out.println("Accepted connection from " + clientName + ":"
+            + clientPort);
     }
 
     /**
@@ -144,14 +147,6 @@ public class Server {
     private void read(SelectionKey key) {
         ChannelStatus status = (ChannelStatus) key.attachment();
         if (!status.reading()) {
-            SocketChannel channel = (SocketChannel) key.channel();
-            try {
-                System.out.println("new read task "
-                    + channel.getRemoteAddress());
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
             threadpool.addTask(new ReadTask(key, PACKET_SIZE));
         }
     }

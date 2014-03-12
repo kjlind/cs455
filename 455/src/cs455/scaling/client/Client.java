@@ -1,6 +1,7 @@
 package cs455.scaling.client;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -53,6 +54,7 @@ public class Client {
      * @throws IOException if the connection attempt fails due to an IO error
      */
     public void connect(String hostIP, int hostPort) throws IOException {
+        System.out.println("Connecting to server.");
         channel.connect(new InetSocketAddress(hostIP, hostPort));
         new Thread(listener).start();
     }
@@ -64,12 +66,14 @@ public class Client {
      * called only after a successful call to connect().
      */
     public void start() {
+        System.out.println("Sending messages to server at a rate of "
+            + messageRate + " per second.");
         while (!Thread.interrupted()) {
             try {
                 sendMessage();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                // assume server disconnect and give up
+                return;
             }
 
             try {
@@ -110,6 +114,11 @@ public class Client {
         while (buff.hasRemaining()) {
             channel.write(buff);
         }
+
+        // print a message
+        BigInteger hashInt = new BigInteger(1, hashbrowns);
+        String hashStr = hashInt.toString(16);
+        System.out.println("Sent " + hashStr);
     }
 
     public static void main(String[] args) {
@@ -156,9 +165,9 @@ public class Client {
      * Prints a usage message and exits.
      */
     private static void usage() {
-        System.err.println("Usage: cs455.scaling.client.Client serverIP"
+        System.err.println("Usage: java cs455.scaling.client.Client serverIP"
             + " serverPort messageRate");
-        System.err.println("       cs455.scaling.client.Client carrot 5000 5");
+        System.err.println("       java cs455.scaling.client.Client carrot 5000 5");
         System.exit(1);
     }
 }

@@ -40,20 +40,20 @@ public class ReadTask implements Task {
             try {
                 read = channel.read(buff);
             } catch (IOException e) {
-                System.err.println("IO error while reading");
-                e.printStackTrace();
                 return;
             }
         }
-        // TODO: handle disconnects and IO errors
+        if (read == -1) {
+            return;
+        }
         buff.flip();
         byte[] data = new byte[packetSize];
         buff.get(data);
-        try {
-            System.out.println("Received data " + data + " from "
-                + channel.getRemoteAddress());
-        } catch (IOException e1) {
-        }
+
+        // print out a cute little message
+        String clientName = channel.socket().getInetAddress().getHostName();
+        int clientPort = channel.socket().getPort();
+        System.out.println("Message from " + clientName + ":" + clientPort);
 
         // calculate and store checksum
         MessageDigest dig = null;
