@@ -24,11 +24,32 @@ public class CountWritable implements Writable {
     private TYPE type;
 
     /**
+     * Default constructor; count will be 0 and type will be null... This is
+     * only here because Hadoop wanted it. Otherwise pretty useless.
+     */
+    public CountWritable() {
+    }
+
+    /**
      * Creates a new CountWritable with the given count and associated type.
      */
     public CountWritable(int count, TYPE type) {
         this.count = count;
         this.type = type;
+    }
+
+    /**
+     * @return the value of count
+     */
+    public int count() {
+        return count;
+    }
+
+    /**
+     * @return the value of type
+     */
+    public TYPE type() {
+        return type;
     }
 
     @Override

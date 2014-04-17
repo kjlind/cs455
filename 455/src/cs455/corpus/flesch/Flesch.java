@@ -31,11 +31,11 @@ public class Flesch {
         job.setMapperClass(FleschMapper.class);
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(CountWritable.class);
-        job.setNumReduceTasks(0);
-        // job.setCombinerClass(YarnWordCountReducer.class);
-        // job.setReducerClass(YarnWordCountReducer.class);
-        // job.setOutputKeyClass(Text.class);
-        // job.setOutputValueClass(IntWritable.class);
+        // job.setNumReduceTasks(0);
+        // job.setCombinerClass(FleschCombiner.class);
+        job.setReducerClass(FleschCombiner.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(CountWritable.class);
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 }
