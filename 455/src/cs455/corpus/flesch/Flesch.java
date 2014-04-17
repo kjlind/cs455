@@ -10,6 +10,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import cs455.corpus.flesch.writable.CountWritable;
+import cs455.corpus.flesch.writable.FleschScoresWritable;
 
 /**
  * Calculates Flesch Reading Ease and Flesch-Kincaid Grade Level scores for a
@@ -32,10 +33,10 @@ public class Flesch {
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(CountWritable.class);
         // job.setNumReduceTasks(0);
-        // job.setCombinerClass(FleschCombiner.class);
-        job.setReducerClass(FleschCombiner.class);
+        job.setCombinerClass(FleschCombiner.class);
+        job.setReducerClass(FleschReducer.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(CountWritable.class);
+        job.setOutputValueClass(FleschScoresWritable.class);
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 }

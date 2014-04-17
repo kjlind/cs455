@@ -19,6 +19,13 @@ public class FleschScoresWritable implements Writable {
     private double gradeLevel;
 
     /**
+     * Creates a new flesch scores writable with a reading ease and grade level
+     * of 0.0.
+     */
+    public FleschScoresWritable() {
+    }
+
+    /**
      * Creates a new flesch scores writable which will store the provided
      * values.
      * 
@@ -40,5 +47,10 @@ public class FleschScoresWritable implements Writable {
     public void write(DataOutput out) throws IOException {
         out.writeDouble(readingEase);
         out.writeDouble(gradeLevel);
+    }
+
+    @Override
+    public String toString() {
+        return readingEase + "," + gradeLevel;
     }
 }
